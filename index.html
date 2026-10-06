@@ -715,7 +715,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
 .ddx-inst.on{transform:none;opacity:1}
 .ddx-inst h4{margin:0 26px 8px 0;font:600 15px/1.2 'Unbounded',system-ui,sans-serif;letter-spacing:-.02em}
 .ddx-inst ol{margin:0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:s}
-.ddx-inst li{display:flex;align-items:center;gap:10px;color:rgba(234,248,248,.82)}
+.ddx-inst li{display:flex;align-items:center;gap:10px;color:rgba(234,248,248,.82)}.ddx-inst li span{min-width:0}
 .ddx-inst li:before{counter-increment:s;content:counter(s);flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#FF7D20;color:#000D0F;font:700 12px 'Onest',sans-serif}
 .ddx-inst b{color:#51FCFF;font-weight:600}
 .ddx-inst .x{position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:50%;background:rgba(104,218,224,.1);color:#EAF8F8;font-size:20px;line-height:1;border:0}
@@ -2085,7 +2085,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
   function show(){document.body.appendChild(box);requestAnimationFrame(function(){requestAnimationFrame(function(){box.classList.add('on')})})}
   function hide(){box.classList.remove('on');try{localStorage.setItem(KEY,'1')}catch(e){}setTimeout(function(){box.remove()},700)}
   if(ios){
-    box.innerHTML='<button class="x" type="button" aria-label="Закрыть">×</button><h4>Установите DDX Vision на iPhone</h4><ol><li>Нажмите <b>«Поделиться»</b> (квадрат со стрелкой) или <b>«⋯»</b> в Safari</li><li>Выберите <b>«На экран «Домой»»</b></li><li>Нажмите <b>«Добавить»</b>. Иконка появится на рабочем столе</li></ol><i class="ar"></i>';
+    box.innerHTML='<button class="x" type="button" aria-label="Закрыть">×</button><h4>Установите DDX Vision на iPhone</h4><ol><li><span>Нажмите <b>«Поделиться»</b> (квадрат со стрелкой) или <b>«⋯»</b> в Safari</span></li><li><span>Выберите <b>«На экран «Домой»»</b></span></li><li><span>Нажмите <b>«Добавить»</b>. Иконка появится на рабочем столе</span></li></ol><i class="ar"></i>';
     box.querySelector('.x').addEventListener('click',hide);
     setTimeout(show,5200);
   }else{
