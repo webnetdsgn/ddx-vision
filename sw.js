@@ -1,9 +1,21 @@
 /* DDX Vision — сервис-воркер: приложение работает без интернета */
-const VER = 'ddx-vision-v1';
+const VER = 'ddx-vision-v2';
+const FONTS = 'https://fonts.googleapis.com/css2?family=Unbounded:wght@400..800&family=Onest:wght@400..700&family=Caveat:wght@600..700&display=swap';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 
+/* шрифты кладём в кэш заранее, чтобы и они работали без интернета */
+async function precacheFonts(cache) {
+  try {
+    const res = await fetch(FONTS);
+    const css = await res.clone().text();
+    await cache.put(FONTS, res);
+    const urls = Array.from(new Set(css.match(/https:\/\/fonts\.gstatic\.com[^)'" ]+/g) || []));
+    await Promise.all(urls.map(u => fetch(u).then(r => cache.put(u, r)).catch(() => {})));
+  } catch (err) { /* без шрифтов тоже работаем */ }
+}
+
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VER).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VER).then(c => Promise.all([c.addAll(SHELL), precacheFonts(c)])).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
