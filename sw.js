@@ -1,5 +1,5 @@
 /* DDX Vision — сервис-воркер: приложение работает без интернета */
-const VER = 'ddx-vision-v2';
+const VER = 'ddx-vision-v3';
 const FONTS = 'https://fonts.googleapis.com/css2?family=Unbounded:wght@400..800&family=Onest:wght@400..700&family=Caveat:wght@600..700&display=swap';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 

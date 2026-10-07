@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>DDX Vision — загрузка клуба в реальном времени</title>
-<meta name="description" content="Концепт приложения для DDX Fitness: загрузка клуба по камерам, свободные тренажёры, прогноз «когда освободится», умный маршрут тренировки без очередей.">
+<meta name="description" content="Концепт приложения для DDX Fitness: загрузка клуба, свободные тренажёры, свободные шкафчики с бронью, прогноз «когда освободится» и маршрут тренировки без очередей.">
 <meta name="theme-color" content="#000D0F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -723,6 +723,113 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
 .ddx-inst .ar{position:absolute;left:50%;bottom:-18px;width:14px;height:14px;margin-left:-7px;background:#001B1F;border-right:1px solid rgba(104,218,224,.28);border-bottom:1px solid rgba(104,218,224,.28);transform:rotate(45deg);animation:ddxb 1.4s ease-in-out infinite}
 @keyframes ddxb{50%{transform:rotate(45deg) translate(4px,4px)}}
 </style>
+<style id="ddx-v4">
+/* ===== v4: проще и спокойнее + свободные шкафчики ===== */
+[hidden]{display:none!important}
+/* экран приложения нельзя «сдвинуть» вбок (фокус/прокрутка не должны смещать шторки) */
+.app{overflow:hidden;overflow:clip}
+/* убрали шум: полосы «сканера» и размытие карточек */
+.hero::after,.hero-scan{display:none}
+.hero{padding:18px}
+.hero-top{margin-bottom:12px}
+.card,.zc,.fv,.nc,.qa,.eqg,.win,.kpi,.al,.rs,.wi{-webkit-backdrop-filter:none;backdrop-filter:none}
+.quick4.q3{grid-template-columns:repeat(3,1fr);margin-top:8px}
+.quick4.q3 button{font-size:13px;color:var(--text);padding:8px 0}
+.how-note{margin-top:18px;padding:12px 14px;border-radius:16px;background:rgba(18,216,216,.07);border:1px solid var(--line);font-size:12.5px;color:var(--mute)}
+.how-note b{color:var(--text)}
+
+/* карточка шкафчика на главной */
+.lkc{position:relative;display:grid;grid-template-columns:52px 1fr auto;gap:12px 14px;align-items:center;width:100%;margin-top:12px;padding:16px;border-radius:26px;text-align:left;background:linear-gradient(135deg,rgba(255,125,32,.14),rgba(18,216,216,.06));border:1px solid var(--line2);transition:transform .3s var(--spring)}
+button.lkc:active{transform:scale(.98)}
+.lkc.is-mine{grid-template-columns:52px 1fr;border-color:rgba(255,125,32,.55)}
+.lkc-i{width:52px;height:52px;border-radius:18px;display:grid;place-items:center;background:var(--orange);color:#fff;box-shadow:0 10px 24px rgba(255,125,32,.35)}
+.lkc-i .ico{width:26px;height:26px}
+.lkc-t{display:grid;gap:3px;min-width:0}
+.lkc-t small{font-size:13px;color:var(--mute)}
+.lkc-t b{font:600 17px/1.2 var(--sans)}
+.lkc-t b i{font-style:normal;font-weight:500;font-size:13px;color:var(--mute)}
+.lkc-t .num{color:var(--orange3);font-size:15px}
+.lkc-ch{width:20px;height:20px;color:var(--dim)}
+.lkc-b{grid-column:1/-1;display:flex;gap:8px}
+.lkc-b .btn{flex:1;padding:0 12px}
+
+/* экран «Шкафчик» */
+.lk-choose{display:grid;gap:10px;margin-top:4px}
+.lk-ch{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;min-height:84px;padding:16px 18px;border-radius:24px;background:var(--card);border:1px solid var(--line);text-align:left;transition:transform .3s var(--spring)}
+.lk-ch:active{transform:scale(.98)}
+.lk-ch b{font:600 17px/1.2 var(--sans)}
+.lk-ch small{font-size:13px;color:var(--mute)}
+.lk-ch .num{grid-row:1/span 2;grid-column:2;font-size:32px;font-weight:700;color:var(--ok)}
+.lk-hint{color:var(--mute);font-size:13px;margin-top:4px}
+.lk-mine{margin-bottom:14px;padding:18px;border-radius:26px;background:radial-gradient(100% 120% at 100% 0,rgba(255,125,32,.22),transparent 60%),var(--card);border:1px solid rgba(255,125,32,.5)}
+.lk-rec{margin-bottom:12px;padding:18px;background:radial-gradient(100% 120% at 100% 0,rgba(30,233,139,.14),transparent 60%),var(--card)}
+.lk-rec-h{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.lk-badge{flex:none;min-width:78px;height:78px;padding:0 8px;border-radius:24px;display:grid;place-items:center;background:var(--orange);color:#fff;font:700 24px/1 var(--display);letter-spacing:-.02em;box-shadow:0 10px 28px rgba(255,125,32,.4)}
+.lk-badge--no{background:var(--card2);color:var(--mute);box-shadow:none;border:1px solid var(--line)}
+.eq-head .lk-badge{min-width:64px;height:64px;border-radius:20px;font-size:19px}
+.lk-tag{display:block;font:600 12px/1 var(--sans);letter-spacing:.04em;color:var(--orange3);margin-bottom:6px}
+.lk-big{display:block;font:700 19px/1.15 var(--display);letter-spacing:-.02em;margin-bottom:4px}
+.lk-big .num{color:var(--orange3)}
+.lk-rec-h small{font-size:13px;color:var(--mute);display:block}
+.lk-why{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px;font-size:14px}
+.lk-why li{display:flex;gap:10px;align-items:flex-start;color:var(--text)}
+.lk-why li::before{content:'✓';flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:rgba(30,233,139,.16);color:var(--ok);font-size:12px;font-weight:700}
+.lk-timer{height:6px;border-radius:3px;background:rgba(234,248,248,.1);overflow:hidden;margin:0 0 14px}
+.lk-timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--orange),var(--warn));transition:width 1s linear}
+.lk-seg{margin-bottom:14px}
+.lk-seg button{flex:1;height:40px}
+.lk-pref{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:14px;color:var(--mute)}
+.lk-pref .chip{height:40px;padding:0 16px;font-size:14px}
+.lk-plan{margin-top:2px}
+.lk-svg{display:block;width:100%;height:auto;aspect-ratio:360/440}
+.lk-room{fill:rgba(18,216,216,.025);stroke:rgba(104,218,224,.3);stroke-width:1.2}
+.lk-zone{fill:rgba(234,248,248,.035);stroke:rgba(104,218,224,.18)}
+.lk-cub{fill:none;stroke:rgba(104,218,224,.25)}
+.lk-bench{fill:rgba(234,248,248,.07)}
+.lk-door{fill:var(--cyan);opacity:.7}
+.lk-door.in{fill:var(--orange);opacity:.9}
+.lk-lbl{font:600 9px/1 var(--sans);fill:rgba(234,248,248,.55);letter-spacing:.05em;text-transform:uppercase;pointer-events:none}
+.lk-sec{fill:rgba(18,216,216,.04);stroke:rgba(104,218,224,.2);cursor:pointer}
+.lk-sl{font:700 12px/1 var(--display);fill:var(--text);pointer-events:none}
+.lk-sp{font:700 9px/1 var(--display);pointer-events:none}
+.lk-c{cursor:pointer}
+.lk-hit{fill:transparent}
+.lk-c .b{fill:rgba(30,233,139,.2);stroke:var(--ok);stroke-width:1;transition:fill .5s,stroke .5s}
+.lk-c .x{display:none;stroke:var(--bad);stroke-width:1.6;stroke-linecap:round;fill:none;pointer-events:none}
+.lk-c.s-busy .b{fill:rgba(228,83,73,.16);stroke:var(--bad)}
+.lk-c.s-busy .x{display:block}
+.lk-c.s-held .b{fill:rgba(249,178,56,.2);stroke:var(--warn);stroke-dasharray:3 2}
+.lk-c.s-broken .b{fill:rgba(106,122,124,.25);stroke:var(--g5);stroke-dasharray:2 2}
+.lk-c.s-mine .b,.lk-c.s-used .b{fill:var(--orange);stroke:#fff;stroke-width:1.6}
+.lk-c.is-rec .b{stroke:#fff;stroke-width:1.8}
+.lkn{display:none;font:700 8.5px var(--display);fill:#EAF8F8;text-anchor:middle;pointer-events:none}
+.lk-svg.is-zoom .lkn{display:block}
+.lk-svg.is-zoom .lk-c.s-busy .x{opacity:.4}
+[data-lkfx]{pointer-events:none}
+.lk-path{fill:none;stroke:var(--orange);stroke-width:2;stroke-dasharray:5 5;stroke-linecap:round;animation:lkd 1.2s linear infinite}
+@keyframes lkd{to{stroke-dashoffset:-20}}
+.lk-ring{fill:none;stroke:var(--ok);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:lkp 1.7s ease-out infinite}
+.lk-ring.mine{stroke:var(--orange)}
+@keyframes lkp{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.8)}}
+.lk-star{font:700 11px var(--sans);fill:var(--ok)}
+.lk-star.mine{fill:var(--orange);font-size:9px}
+.lg-free{background:var(--ok)}.lg-held{background:var(--warn)}.lg-busy{background:var(--bad)}.lg-mine{background:var(--orange)}
+.lk-secs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.lk-sc{display:grid;gap:6px;align-content:start;padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--line);text-align:left;min-height:88px;transition:transform .3s var(--spring)}
+.lk-sc:active{transform:scale(.97)}
+.lk-sc.is-best{border-color:rgba(30,233,139,.55);background:rgba(30,233,139,.06)}
+.lk-sc-h{display:flex;align-items:baseline;justify-content:space-between}
+.lk-sc-h b{font:700 22px/1 var(--display)}
+.lk-sc-h .num{font-size:20px;font-weight:700;color:var(--lvl)}
+.lk-sc-h .num small{font-size:12px;color:var(--mute)}
+.lk-sc small{font-size:12.5px;color:var(--mute)}
+.lk-sc .mb{height:4px;border-radius:2px;background:rgba(234,248,248,.08);overflow:hidden}
+.lk-sc .mb i{display:block;height:100%;background:var(--lvl);border-radius:inherit}
+@media (prefers-reduced-motion:reduce){.lk-path,.lk-ring{animation:none}}
+/* крупнее зоны нажатия у мелких кнопок */
+.sec-h button,.sec-h a{padding:12px 0 12px 14px;margin:-12px 0;font-size:14px}
+.time-pill,.cam-pill{height:36px}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -758,6 +865,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="m12 13 4-4"/></symbol>
     <symbol id="i-steam" viewBox="0 0 24 24"><path d="M8 3c-1.5 2 1.5 3 0 5M12 3c-1.5 2 1.5 3 0 5M16 3c-1.5 2 1.5 3 0 5M3 13h18v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
     <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M14 12h1"/></symbol>
+    <symbol id="i-locker" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M12 3v18M4 9.5h16M9.2 6.2h.01M14.8 6.2h.01M9.2 15h.01M14.8 15h.01"/></symbol>
     <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12 20 4l-6 16-3-7z"/><path d="m11 13 9-9"/></symbol>
     <symbol id="i-sparkf" viewBox="0 0 24 24"><path d="M12 2c.7 5.2 3.8 8.3 9 9-5.2.7-8.3 3.8-9 9-.7-5.2-3.8-8.3-9-9 5.2-.7 8.3-3.8 9-9z"/><path d="M19 1.5c.3 1.6 1 2.3 2.5 2.5-1.5.3-2.2 1-2.5 2.5-.3-1.5-1-2.2-2.5-2.5 1.5-.2 2.2-.9 2.5-2.5z"/></symbol>
@@ -770,11 +878,12 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
   <aside class="pitch">
     <div class="pitch-logo"><span class="wm"><b>DDX</b> <i>VISION</i></span></div>
     <h1>Зал, который <em>видно</em> заранее</h1>
-    <p>Камеры клуба считают людей и занятые тренажёры, а приложение подсказывает, когда прийти, что свободно прямо сейчас и в каком порядке тренироваться без очередей.</p>
+    <p>Камеры клуба считают людей и занятые тренажёры, а приложение подсказывает, когда прийти, что свободно прямо сейчас в каком порядке тренироваться без очередей и какой шкафчик в раздевалке свободен.</p>
     <ul class="feat">
       <li><span class="fi"><svg class="ico"><use href="#i-gauge"/></svg></span><span><b>Загрузка клуба в реальном времени</b>по зонам и тренажёрам</span></li>
       <li><span class="fi"><svg class="ico"><use href="#i-clock"/></svg></span><span><b>Прогноз «когда освободится»</b>по минутам и процентам</span></li>
       <li><span class="fi"><svg class="ico"><use href="#i-route"/></svg></span><span><b>Умный маршрут тренировки</b>перестраивается вокруг очередей</span></li>
+      <li><span class="fi"><svg class="ico"><use href="#i-locker"/></svg></span><span><b>Свободные шкафчики и бронь</b>план раздевалки и лучший шкафчик</span></li>
       <li><span class="fi"><svg class="ico"><use href="#i-bell"/></svg></span><span><b>«Позови, когда освободится»</b>и виртуальная очередь</span></li>
       <li><span class="fi"><svg class="ico"><use href="#i-shield"/></svg></span><span><b>Без лиц</b>только силуэты и счётчики</span></li>
     </ul>
@@ -815,8 +924,6 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
               <span class="cam-pill"><svg class="ico" style="width:14px;height:14px"><use href="#i-eye"/></svg>AI · <span data-updated>сейчас</span></span>
               <button class="time-pill" type="button" data-act="time" data-timepill><svg class="ico" style="width:14px;height:14px"><use href="#i-time"/></svg><span data-simtime>--:--</span></button>
             </div>
-            <div class="ticker" aria-live="polite"><i class="tk-dot"></i><div class="tk-box" data-ticker></div></div>
-            <span class="sticker" data-sticker hidden>го, свободно!</span>
             <div class="hero-main">
               <button class="gauge liquid tap-num" type="button" data-go="forecast" aria-label="Загрузка клуба — открыть прогноз">
                 <canvas data-liquid></canvas>
@@ -830,19 +937,16 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
               </div>
             </div>
             <div class="verdict" data-verdict></div>
-            <div class="spark" data-spark></div>
-            <div class="predict" data-predict><small>Прогноз AI</small><b data-ptext>…</b><span class="num" style="font-size:15px" data-pmin></span><div class="bar"><i data-pbar></i></div></div>
           </div>
 
+          <div class="rv" data-lockerhome></div>
+
           <div class="rv">
-            <div class="quick4">
-              <button type="button" data-act="qr"><span class="q4i o"><svg class="ico"><use href="#i-qr"/></svg></span>Пропуск</button>
-              <button type="button" data-go="map"><span class="q4i"><svg class="ico"><use href="#i-map"/></svg></span>Карта зала</button>
-              <button type="button" data-go="plan"><span class="q4i"><svg class="ico"><use href="#i-route"/></svg></span>Маршрут</button>
+            <div class="quick4 q3">
+              <button type="button" data-go="forecast"><span class="q4i"><svg class="ico"><use href="#i-chart"/></svg></span>Когда прийти</button>
+              <button type="button" data-go="plan"><span class="q4i"><svg class="ico"><use href="#i-route"/></svg></span>Тренировка</button>
               <button type="button" data-act="ai"><span class="q4i ai"><svg class="ico"><use href="#i-sparkf"/></svg></span>DDX AI</button>
             </div>
-            <button class="ask" type="button" data-act="ai"><span class="ask-ic">✦</span><span class="ask-t">Спроси DDX AI: «свободна ли рама?»</span><span class="ask-mic" data-askmic><svg class="ico"><use href="#i-mic"/></svg></span></button>
-            <div class="ask-sug" data-asksug><button type="button" data-q="Когда лучше прийти сегодня?">Когда лучше прийти?</button><button type="button" data-q="Свободна ли силовая рама?">Свободна ли рама?</button><button type="button" data-q="Собери тренировку ног на 45 минут">Ноги за 45 минут</button><button type="button" data-q="Где сейчас свободнее рядом?">Где свободнее рядом?</button></div>
           </div>
 
           <div class="sec rv">
@@ -856,22 +960,8 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
           </div>
 
           <div class="sec rv">
-            <div class="sec-h"><h3>Зоны</h3><button type="button" data-go="map">на карте</button></div>
-            <div class="zones" data-zones></div>
-          </div>
-
-          <div class="sec rv">
             <div class="sec-h"><h3>Групповые сегодня</h3></div>
             <div class="card studio" data-studio></div>
-          </div>
-
-          <div class="sec rv">
-            <div class="card challenge">
-              <span class="sticker">огонь!</span>
-              <h4>Вне пика — <span data-streak>3</span>/4</h4>
-              <p>Тренируйся, когда свободнее, и получай бонусы DDX. Ещё одна тренировка до +300 баллов.</p>
-              <div class="dots7" data-week></div>
-            </div>
           </div>
 
           <div class="sec rv">
@@ -885,7 +975,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
           <h2 class="h-title rv">Карта зала</h2>
           <p class="h-sub rv">Нажмите на зону — приблизим, на тренажёр — подробности</p>
           <div class="map-tools rv">
-            <div class="seg" data-seg="layer"><span class="seg-ink"></span><button type="button" class="is-on" data-v="eq">Тренажёры</button><button type="button" data-v="heat">Тепло</button><button type="button" data-v="ppl">Люди</button></div>
+            <div class="seg" data-seg="layer"><span class="seg-ink"></span><button type="button" class="is-on" data-v="eq">Тренажёры</button><button type="button" data-v="heat">Загрузка</button><button type="button" data-v="ppl">Люди</button></div>
           </div>
           <div class="map-card rv">
             <button class="map-back" type="button" data-mapback hidden><svg class="ico"><use href="#i-down"/></svg>Весь зал</button>
@@ -925,19 +1015,29 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
           <div class="sec rv"><div class="sec-h"><h3>Лучшие окна</h3></div><div class="windows" data-windows></div></div>
           <div class="sec rv">
             <div class="card">
-              <div class="leave"><div><small>Чтобы попасть в окно</small><br><b data-leave>--:--</b></div><span class="chip" data-travel>🚶 12 мин</span></div>
-              <input class="range" type="range" min="5" max="40" step="1" value="12" data-travelr aria-label="Время в пути, минут">
-              <small style="color:var(--mute);font-size:12px">Время в пути до клуба: <span data-travelv>12</span> мин</small>
-            </div>
-          </div>
-          <div class="sec rv">
-            <div class="card">
               <div class="row"><div><b>Сообщить, когда станет свободно</b><small>Порог загрузки: <span data-thv>35</span>%</small></div><button class="toggle is-on" type="button" data-toggle="alert" aria-label="Уведомлять о загрузке"></button></div>
               <input class="range" type="range" min="15" max="70" step="5" value="35" data-th aria-label="Порог загрузки">
             </div>
           </div>
-          <div class="sec rv"><div class="sec-h"><h3>Неделя</h3><small style="color:var(--mute);font-size:12px">типичная загрузка</small></div><div class="card"><div class="heatmap" data-heatmap></div></div></div>
-          <div class="model rv"><span>📷 12 камер</span><span>🚪 турникеты</span><span>📅 расписание групповых</span><span>🌧 погода</span><span>🎉 праздники</span></div>
+        </section>
+
+        <!-- ============================== ШКАФЧИКИ ============================== -->
+        <section class="screen" data-screen="lockers" aria-label="Шкафчики">
+          <h2 class="h-title rv">Шкафчик</h2>
+          <p class="h-sub rv">Покажем, где свободно, подскажем лучший и придержим его для вас</p>
+          <div class="lk-mine rv" data-lkmine hidden></div>
+          <div class="lk-choose rv" data-lkchoose></div>
+          <div data-lkmain hidden>
+            <div class="seg lk-seg rv" data-seg="room"><span class="seg-ink"></span><button type="button" class="is-on" data-v="f">Женская</button><button type="button" data-v="m">Мужская</button></div>
+            <div class="card lk-rec rv" data-lkrec></div>
+            <div class="lk-pref rv" data-lkpref><span>Ближе к</span><button type="button" class="chip is-on" data-pref="gym">залу</button><button type="button" class="chip" data-pref="shower">душевым</button></div>
+            <div class="map-card lk-plan rv">
+              <button class="map-back" type="button" data-lkback hidden><svg class="ico"><use href="#i-down"/></svg>Весь план</button>
+              <svg class="lk-svg" viewBox="0 0 360 440" data-lksvg aria-label="План раздевалки"></svg>
+              <div class="map-legend"><span><i class="lg-free"></i>свободен</span><span><i class="lg-held"></i>придержан</span><span><i class="lg-busy"></i>занят</span><span><i class="lg-mine"></i>ваш</span></div>
+            </div>
+            <div class="lk-secs rv" data-lksecs></div>
+          </div>
         </section>
 
         <!-- ============================ УПРАВЛЯЮЩИЙ ============================ -->
@@ -957,7 +1057,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
         <button class="tab is-on" type="button" data-go="home"><svg class="ico"><use href="#i-home"/></svg>Клуб</button>
         <button class="tab" type="button" data-go="map"><svg class="ico"><use href="#i-map"/></svg>Зал</button>
         <button class="tab-qr" type="button" data-act="qr" aria-label="Пропуск в клуб"><svg class="ico"><use href="#i-qr"/></svg></button>
-        <button class="tab" type="button" data-go="plan"><svg class="ico"><use href="#i-route"/></svg>Маршрут</button>
+        <button class="tab" type="button" data-go="lockers"><svg class="ico"><use href="#i-locker"/></svg>Шкафчик</button>
         <button class="tab" type="button" data-go="forecast"><svg class="ico"><use href="#i-chart"/></svg>Прогноз</button>
       </nav>
 
@@ -986,6 +1086,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
       <div class="pipe-a"></div>
       <div class="pipe-s"><b>Приложение DDX</b><span>Карта, прогноз, очередь к тренажёру и маршрут без ожидания</span></div>
     </div>
+    <p class="how-note"><b>Шкафчики.</b> Замки сообщают «занят / свободен», приложение показывает план раздевалки и держит бронь 20 минут. В концепте эти данные симулированы.</p>
   </aside>
 </div>
 
@@ -1071,8 +1172,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     func: { n: 'Cross Box · Athletic', s: 'функционал', x: 12, y: 312, w: 150, h: 92, k: 0.8, cap: 12, ic: 'i-bolt' },
     trx: { n: 'TRX', s: '6 петель', x: 172, y: 312, w: 76, h: 92, k: 0.6, ic: 'i-users' },
     studio: { n: 'Студия', s: 'групповые', x: 258, y: 312, w: 90, h: 92, k: 0, cap: 22, ic: 'i-users' },
-    locker: { n: 'Раздевалки', s: 'Ж / М', x: 12, y: 416, w: 150, h: 40, k: 0, cap: 40, ic: 'i-door' },
-    spa: { n: 'SPA', s: 'сауна · хаммам', x: 172, y: 416, w: 176, h: 40, k: 0, cap: 14, ic: 'i-steam' }
+    locker: { n: 'Раздевалки', s: 'шкафчики', x: 12, y: 416, w: 336, h: 40, k: 0, cap: 40, ic: 'i-locker' }
   };
   function buildEq() {
     const L = [], add = (t, x, y, w, h, n) => L.push({ id: t + n, t, n, x, y, w, h });
@@ -1105,11 +1205,12 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     watch: new Set(), queue: null, notifs: [], unread: 0, layer: 'eq', filter: 'all', q: '', sel: null,
     goal: 'legs', dur: 60, plan: null, wo: null, day: 0, travel: 12, th: 35, thOn: true, lastAbove: true, hist: [],
     streak: 3, screen: 'home', admin: false,
-    fav: ['rack', 'legpress', 'tread', 'bench'], onlyFree: false, open: new Set(), remind: null, zoom: null, lastSoon: 0
+    fav: ['rack', 'legpress', 'tread', 'bench'], onlyFree: false, open: new Set(), remind: null, zoom: null, lastSoon: 0,
+    room: null, lkPref: 'gym', lk: null, lkZoom: null
   };
   const SKEY = 'ddx-vision-v1';
-  try { const sv = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (sv) { const c = CLUBS.find(x => x.id === sv.club); if (c) state.club = c; ['th', 'thOn', 'travel', 'goal', 'dur'].forEach(k => { if (sv[k] != null) state[k] = sv[k]; }); if (Array.isArray(sv.fav)) state.fav = sv.fav.filter(t => T[t]); } } catch (e) {}
-  function save() { try { localStorage.setItem(SKEY, JSON.stringify({ club: state.club.id, th: state.th, thOn: state.thOn, travel: state.travel, goal: state.goal, dur: state.dur, fav: state.fav })); } catch (e) {} }
+  try { const sv = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (sv) { const c = CLUBS.find(x => x.id === sv.club); if (c) state.club = c; ['th', 'thOn', 'travel', 'goal', 'dur'].forEach(k => { if (sv[k] != null) state[k] = sv[k]; }); if (sv.room === 'f' || sv.room === 'm') state.room = sv.room; if (sv.lkPref === 'shower') state.lkPref = 'shower'; if (Array.isArray(sv.fav)) state.fav = sv.fav.filter(t => T[t]); } } catch (e) {}
+  function save() { try { localStorage.setItem(SKEY, JSON.stringify({ club: state.club.id, th: state.th, thOn: state.thOn, travel: state.travel, goal: state.goal, dur: state.dur, fav: state.fav, room: state.room, lkPref: state.lkPref })); } catch (e) {} }
   function mskNow() {
     const d = new Date();
     try { const p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit', second: '2-digit', weekday: 'short', hour12: false }).formatToParts(d); const g = k => (p.find(x => x.type === k) || {}).value;
@@ -1128,7 +1229,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
   const SPEED = 0.16; // минут симуляции тренажёров за тик (~1 мин за 7 с — демо ускорено)
   function zoneTarget(z) { return clamp(curLoad() * ZONES[z].k * 1.05 + Math.sin(performance.now() / 9000 + z.length) * 0.04, 0, 0.98); }
   function initSim() {
-    state.ss = {};
+    lkDirty(); state.ss = {};
     const L = curLoad();
     state.eq.forEach((e, i) => {
       const t = T[e.t], target = clamp(L * ZONES[t.z].k * 1.05, 0, 0.98);
@@ -1258,14 +1359,14 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
   $('[data-push]').addEventListener('click', () => { $('[data-push]').classList.remove('is-on'); pushFn && pushFn(); });
 
   /* ------------------------------------------------------------ навигация */
-  const ORDER = ['home', 'map', 'plan', 'forecast', 'admin'];
+  const ORDER = ['home', 'map', 'plan', 'lockers', 'forecast', 'admin'];
   let ignorePop = false;
   function go(name, opt = {}) {
     if (!name || name === state.screen) { if (name) $(`[data-screen="${name}"]`).scrollTo({ top: 0, behavior: 'smooth' }); return; }
     if (!opt.fromPop) { if (state.screen === 'home' && name !== 'home') history.pushState({ ddx: 'screen' }, ''); else if (name === 'home' && history.state && history.state.ddx === 'screen') { ignorePop = true; history.back(); } }
     const a = ORDER.indexOf(state.screen), b = ORDER.indexOf(name);
     $$('.screen').forEach(s => { const on = s.dataset.screen === name; s.classList.toggle('is-on', on); s.classList.toggle('is-left', !on && ORDER.indexOf(s.dataset.screen) < b); });
-    $$('.tab').forEach(t => t.classList.toggle('is-on', t.dataset.go === name));
+    $$('.tab').forEach(t => t.classList.toggle('is-on', t.dataset.go === (name === 'plan' ? 'map' : name)));
     state.screen = name; buzz(6); closeSheet({ silent: true });
     $(`[data-screen="${name}"]`).scrollTop = 0;
     render(true);
@@ -1328,14 +1429,9 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     const P = predict();
     const tr = $('[data-trend]'); tr.className = 'trend ' + (P.trend > 0.02 ? 'up' : P.trend < -0.02 ? 'down' : '');
     tr.textContent = P.trend > 0.02 ? '↑ людей прибывает' : P.trend < -0.02 ? '↓ становится свободнее' : '→ стабильно';
-    $('[data-ptext]').innerHTML = P.text; $('[data-pmin]').textContent = P.min; $('[data-pbar]').style.width = Math.round(P.p * 100) + '%';
     $('[data-simtime]').textContent = (state.tOver ? 'демо ' : '') + DAYS[n.dow] + ' ' + hm(n.min);
     $('[data-timepill]').classList.toggle('is-demo', !!state.tOver);
-    const st = $('[data-sticker]'); const showSt = L < 0.4; if (showSt && st.hidden) { st.hidden = false; st.classList.remove('pop'); void st.offsetWidth; st.classList.add('pop'); } else if (!showSt) st.hidden = true;
-    renderSpark(n);
-    // зоны
-    const zs = zoneStats();
-    $('[data-zones]').innerHTML = Object.entries(zs).map(([k, z]) => { const lv2 = LV(z.p); return `<button class="zc" type="button" data-zone="${k}" style="--lvl:${lv2.c};--h:${Math.round(z.p * 100)}%"><svg class="ico"><use href="#${ZONES[k].ic}"/></svg><small>${ZONES[k].n}</small><span class="num">${Math.round(z.p * 100)}<small>%</small></span><span>${z.label}</span></button>`; }).join('');
+    renderLockerHome();
     // главный ответ: идти сейчас или позже
     const V = verdict();
     $('[data-verdict]').innerHTML = `<span class="vd-i ${V.ok ? 'ok' : 'no'}">${V.ok ? '✓' : '⏱'}</span><span class="vd-t"><b>${V.t}</b><small>${V.s}</small></span>${V.remind != null ? `<button class="btn btn--o btn--sm" type="button" data-act="remind" data-at="${V.remind}">${state.remind === V.remind ? 'Напомним ✓' : 'Напомнить'}</button>` : V.ok ? '<button class="btn btn--c btn--sm" type="button" data-act="qr">Пропуск</button>' : ''}`;
@@ -1353,10 +1449,8 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     const nx = CLASSES.find(c => c[0] + c[3] > n.min) || CLASSES[0];
     const started = nx[0] <= n.min, fill = Math.round(clamp(loadAt(n.dow, nx[0]) * 24 + 3, 6, 22));
     $('[data-studio]').innerHTML = `<div class="st-t"><b>${hm(nx[0])}</b><small>${started ? 'идёт' : 'скоро'}</small></div><div><h4>${nx[1]}</h4><p>${nx[2]} · ${nx[3]} мин · ${fill}/22 мест</p></div><button class="btn btn--g btn--sm" type="button" data-act="book">${fill >= 22 ? 'В лист ожидания' : 'Записаться'}</button>`;
-    // неделя «вне пика»
-    $('[data-week]').innerHTML = DAYS.map((d, i) => `<i class="${[0, 2, 3].includes(i) || (i === 4 && state.streak > 3) ? 'on' : i === 1 ? 'peak' : ''}" title="${i === 1 ? 'тренировка в пик' : ''}">${d}</i>`).join('');
     // рядом
-    const list = CLUBS.map(c => ({ c, v: loadAt(n.dow, n.min, c), d: dist(HOME, c) })).sort((a, b) => a.v - b.v).slice(0, 4);
+    const list = CLUBS.map(c => ({ c, v: loadAt(n.dow, n.min, c), d: dist(HOME, c) })).sort((a, b) => a.v - b.v).slice(0, 3);
     $('[data-near]').innerHTML = list.map(({ c, v, d }) => { const l = LV(v); return `<button class="nc${c === state.club ? ' is-cur' : ''}" type="button" data-club="${c.id}" style="--lvl:${l.c}"><b>DDX ${c.name}</b><span class="num">${Math.round(v * 100)}%</span><small>${c === state.club ? 'ваш клуб' : d.toFixed(1) + ' км'} · ${l.n.toLowerCase()}</small><span class="mb"><i style="width:${Math.round(v * 100)}%"></i></span></button>`; }).join('');
     $('[data-updated]').textContent = (Math.random() < 0.5 ? '1' : '2') + ' с назад';
   }
@@ -1366,23 +1460,9 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     const fn = clamp(L * 0.8 + 0.05, 0, 1); res.func = { p: fn, label: Math.round(fn * 12) + ' чел. · Cross Box' };
     const trxBusy = state.eq.filter(e => e.t === 'trx' && state.ss[e.id].s === 'busy').length; res.trx = { p: trxBusy / 6, label: (6 - trxBusy) + ' петли свободно' };
     const cl = CLASSES.find(c => c[0] <= n.min && c[0] + c[3] > n.min); const sp = cl ? clamp(loadAt(n.dow, cl[0]) * 1.05, 0.3, 1) : 0.05; res.studio = { p: sp, label: cl ? cl[1] + ' идёт' : 'свободна' };
-    const lk = clamp(L * 0.9 + Math.sin(n.min / 7) * 0.08, 0, 1); res.locker = { p: lk, label: 'шкафчиков: ' + Math.round((1 - lk) * 120) };
-    const spa = clamp(L * 0.7 + 0.05, 0, 1); res.spa = { p: spa, label: 'хаммам · ' + Math.round(spa * 14) + ' чел.' };
+    res.locker = { p: lkBusyShare(), label: 'шкафчиков: ' + lkFreeTotal() };
     return res;
   }
-  function renderSpark(n) {
-    const pts = []; for (let k = -90; k <= 0; k += 5) pts.push(loadAt(n.dow, Math.max(360, n.min + k)));
-    const fut = []; for (let k = 0; k <= 60; k += 5) fut.push(loadAt(n.dow, Math.min(1439, n.min + k)));
-    const W = 300, Hh = 48, all = pts.length + fut.length - 1, x = i => i / (all - 1) * W, y = v => Hh - 4 - v * (Hh - 10);
-    const p1 = pts.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
-    const p2 = fut.map((v, i) => (i ? 'L' : 'M') + x(i + pts.length - 1).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
-    const nx = x(pts.length - 1), ny = y(pts[pts.length - 1]);
-    $('[data-spark]').innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none"><defs><linearGradient id="sp" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#12D8D8" stop-opacity=".35"/><stop offset="1" stop-color="#12D8D8" stop-opacity="0"/></linearGradient></defs>
-      <path d="${p1}L${nx} ${Hh}L0 ${Hh}Z" fill="url(#sp)"/><path d="${p1}" fill="none" stroke="#12D8D8" stroke-width="2" vector-effect="non-scaling-stroke"/><path d="${p2}" fill="none" stroke="#FF7D20" stroke-width="2" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>
-      <line x1="${nx}" x2="${nx}" y1="0" y2="${Hh}" stroke="rgba(234,248,248,.35)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/><circle cx="${nx}" cy="${ny}" r="4" fill="#fff"/>
-      <text x="2" y="10" fill="rgba(234,248,248,.5)" font-size="9" font-family="Onest, system-ui, sans-serif">−90 мин</text><text x="${W - 2}" y="10" text-anchor="end" fill="#FFA75F" font-size="9" font-family="Onest, system-ui, sans-serif">прогноз +60</text></svg>`;
-  }
-  $('[data-zones]').addEventListener('click', e => { const z = e.target.closest('[data-zone]'); if (!z) return; const f = { cardio: 'cardio', machines: 'machines', free: 'free', func: 'func', trx: 'func' }[z.dataset.zone]; if (f) { state.filter = f; syncFilter(); } go('map'); });
   $('[data-favs]').addEventListener('click', e => { const b = e.target.closest('[data-fav]'); if (!b) return; const u = bestUnit(b.dataset.fav); if (u) openEq(u.id); });
   function typeStat(t) {
     const units = state.eq.filter(e => e.t === t && stOf(e.id) !== 'service'), tt = T[t];
@@ -1420,10 +1500,10 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     let h = `<defs><filter id="blur8" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter></defs>`;
     h += `<line x1="12" y1="30" x2="348" y2="30" stroke="#12D8D8" stroke-width="2" stroke-dasharray="10 5" opacity=".6"/><text x="180" y="22" text-anchor="middle" class="mz-t">панорамные окна</text>`;
     h += `<g class="heat is-off" data-heat filter="url(#blur8)"></g>`;
-    const MN = { cardio: 'Кардио', machines: 'Тренажёры', free: 'Веса', func: 'Cross Box', trx: 'TRX', studio: 'Студия', locker: 'Раздевалки', spa: 'SPA' };
+    const MN = { cardio: 'Кардио', machines: 'Тренажёры', free: 'Веса', func: 'Cross Box', trx: 'TRX', studio: 'Студия', locker: 'Раздевалки' };
     Object.entries(ZONES).forEach(([k, z]) => { h += `<rect class="mz" data-mz="${k}" x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" rx="12"/><text class="mz-t" x="${z.x + 8}" y="${z.y + 13}">${MN[k]}</text><text class="mz-p" data-mzp="${k}" x="${z.x + z.w - 8}" y="${z.y + 13}" text-anchor="end"></text>`; });
     h += `<text class="mz-t" x="268" y="350" data-studio-t style="text-transform:none;font-size:10px;fill:#C090F4">—</text>`;
-    h += `<text class="mz-t" x="20" y="442" style="text-transform:none;font-size:10px">Ж · М · шкафчики</text><text class="mz-t" x="180" y="442" style="text-transform:none;font-size:10px">сауна · хаммам · InBody</text>`;
+    h += `<text class="mz-t" data-lk-t x="20" y="443" style="text-transform:none;font-size:10px;fill:#6AE8B0">выбрать шкафчик ›</text>`;
     h += `<rect x="120" y="466" width="120" height="26" rx="13" fill="rgba(255,125,32,.14)" stroke="#FF7D20"/><text x="180" y="483" text-anchor="middle" class="mz-t" style="fill:#FFA75F">вход · ресепшн</text>`;
     h += `<g data-eqs>` + state.eq.map(e => {
       if (e.t === 'trx') return `<g class="eq" data-eq="${e.id}"><circle class="eq-hit" cx="${e.x}" cy="${e.y}" r="12"/><circle class="b" cx="${e.x}" cy="${e.y}" r="7"/><circle class="w" cx="${e.x + 7}" cy="${e.y - 7}" r="3"/></g>`;
@@ -1431,7 +1511,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     }).join('') + `</g>`;
     h += `<g class="ppl is-off" data-ppl></g>`;
     S.innerHTML = h;
-    S.addEventListener('click', e => { const g = e.target.closest('[data-eq]'); if (g) { openEq(g.dataset.eq); return; } const z = e.target.closest('[data-mz]'); if (z && !state.zoom) { const k = z.dataset.mz, f = { cardio: 'cardio', machines: 'machines', free: 'free', func: 'func', trx: 'func' }[k]; zoomZone(k); if (f) { state.filter = f; syncFilter(); renderEqList(); renderMapState(); } } });
+    S.addEventListener('click', e => { const g = e.target.closest('[data-eq]'); if (g) { openEq(g.dataset.eq); return; } const z = e.target.closest('[data-mz]'); if (z && z.dataset.mz === 'locker') { go('lockers'); return; } if (z && !state.zoom) { const k = z.dataset.mz, f = { cardio: 'cardio', machines: 'machines', free: 'free', func: 'func', trx: 'func' }[k]; zoomZone(k); if (f) { state.filter = f; syncFilter(); renderEqList(); renderMapState(); } } });
   }
   const VB0 = [0, 0, 360, 500]; let vb = VB0.slice(), vbAnim = 0;
   function setVB(target) {
@@ -1440,7 +1520,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     vbAnim = requestAnimationFrame(step);
   }
   function zoomZone(k) {
-    const Z = ZONES[k]; if (!Z || ['locker', 'spa'].includes(k)) return;
+    const Z = ZONES[k]; if (!Z || k === 'locker') return;
     let w = Math.max(Z.w + 24, 150), h = Z.h + 34, x = Z.x + Z.w / 2 - w / 2, y = Z.y - 22;
     if (k === 'cardio') { y = Z.y - 28; h = Z.h + 40; }
     state.zoom = k; setVB([x, y, w, h]); $('[data-mapback]').hidden = false; buzz(8);
@@ -1452,6 +1532,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     $$('[data-eqs] .eq').forEach(g => { const id = g.dataset.eq, s = stOf(id); g.setAttribute('class', `eq s-${s}${state.sel === id ? ' is-sel' : ''}${state.watch.has(id) || (state.queue && state.queue.id === id) ? ' is-watch' : ''}`); });
     const db = $('[data-dbfill]'); if (db) db.setAttribute('width', String(110 * state.ss.db1.used / T.db.cap));
     Object.entries(zs).forEach(([k, z]) => { const t = $(`[data-mzp="${k}"]`); if (t) { t.textContent = Math.round(z.p * 100) + '%'; t.style.fill = LV(z.p).c; } const r = $(`[data-mz="${k}"]`); r && r.classList.toggle('is-on', state.filter !== 'all' && ({ cardio: ['cardio'], machines: ['machines'], free: ['free'], func: ['func', 'trx'] }[state.filter] || []).includes(k)); });
+    const lt = $('[data-lk-t]'); if (lt) lt.textContent = 'свободно ' + lkFreeTotal() + ' из ' + lkTotal() + ' · выбрать шкафчик ›';
     const n = now(), cl = CLASSES.find(c => c[0] <= n.min && c[0] + c[3] > n.min) || CLASSES.find(c => c[0] > n.min);
     const stt = $('[data-studio-t]'); if (stt) stt.textContent = cl ? (cl[0] <= n.min ? '▶ ' : hm(cl[0]) + ' ') + cl[1] : 'свободна';
     // тепловая карта
@@ -1461,7 +1542,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
   const dots = [];
   function syncDots() {
     const zs = zoneStats(), want = {};
-    const capMap = { cardio: 19, machines: 16, free: 14, func: 12, trx: 6, studio: 22, locker: 14, spa: 10 };
+    const capMap = { cardio: 19, machines: 16, free: 14, func: 12, trx: 6, studio: 22, locker: 14 };
     Object.keys(ZONES).forEach(k => { want[k] = Math.round(zs[k].p * capMap[k]); });
     Object.keys(want).forEach(k => {
       const cur = dots.filter(d => d.z === k);
@@ -1625,7 +1706,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
         <div>${W.rest ? `<b class="num">${restLeft}</b><span>отдых, сек</span>` : sets > 1 ? `<b class="num">${W.set + 1}<small style="font-size:24px;opacity:.5">/${sets}</small></b><span>подход</span>` : `<b class="num">${Math.round(exMins(o.ex))}′</b><span>в своём темпе</span>`}</div></div>
       <div class="sets">${sets > 1 ? Array.from({ length: sets }, (_, k) => `<i class="${k < W.set ? 'on' : ''}"></i>`).join('') : ''}</div>
       <div class="ai-note" style="margin:0 0 12px"><svg class="ico"><use href="#i-spark"/></svg><span><b style="color:var(--text)">Совет тренера DDX.</b> ${TIPS[o.ex[1]] || 'Работайте в комфортном темпе и следите за дыханием.'}</span></div>
-      <div class="wo-next">${nx ? `<small>Дальше</small><b>${nx.ex[0]}</b><span class="rst s-${nxF.w > 0 ? 'soon' : 'free'}" style="font:600 12px/1 var(--sans);padding:8px 10px;border-radius:100px">${nxF.w > 0 ? 'освободится ~' + Math.ceil(nxF.w) + '′' : 'свободен ✓'}</span>` : `<small>Дальше</small><b>Финиш и сауна 🧖</b><span></span>`}</div>
+      <div class="wo-next">${nx ? `<small>Дальше</small><b>${nx.ex[0]}</b><span class="rst s-${nxF.w > 0 ? 'soon' : 'free'}" style="font:600 12px/1 var(--sans);padding:8px 10px;border-radius:100px">${nxF.w > 0 ? 'освободится ~' + Math.ceil(nxF.w) + '′' : 'свободен ✓'}</span>` : `<small>Дальше</small><b>Финиш и растяжка 🧘</b><span></span>`}</div>
       <div class="wo-btns"><button class="btn btn--g" type="button" data-wo-skip>${W.rest ? 'Пропустить отдых' : 'Пропустить'}</button><button class="btn btn--o" type="button" data-wo-done>${W.rest ? 'Готов к подходу' : sets > 1 && W.set + 1 < sets ? 'Подход сделан' : 'Упражнение готово'}</button></div>`;
   }
   wo.addEventListener('click', e => {
@@ -1664,14 +1745,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     function showTip(e) { const i = +e.currentTarget.dataset.bi, o = hours[i], tip = $('[data-tip]', chart), cr = chart.getBoundingClientRect(), rr = e.currentTarget.getBoundingClientRect(); tip.innerHTML = `${o.h}:00–${o.h + 1}:00 · <b>${Math.round(o.v * 100)}%</b> · ${LV(o.v).n.toLowerCase()}`; tip.style.left = clamp(rr.left - cr.left + rr.width / 2, 70, cr.width - 70) + 'px'; tip.style.top = (rr.top - cr.top) + 'px'; tip.classList.add('is-on'); clearTimeout(showTip.t); showTip.t = setTimeout(() => tip.classList.remove('is-on'), 2200); }
     const ws = windows(dow, state.day === 0 ? n.min : 360);
     $('[data-windows]').innerHTML = ws.map((w, i) => `<div class="win${i === 0 ? ' best' : ''}" style="--lvl:${LV(w.v).c}"><span class="wt">${hm(w.m)}–${hm(w.m + 60)}</span><span><small>${i === 0 ? '⭐ лучшее окно' : 'хорошее окно'}</small><small>${state.day === 0 ? 'сегодня' : DAYS_F[dow]} · ~${Math.round(w.v * state.club.cap)} чел.</small></span><span class="num">${Math.round(w.v * 100)}%</span></div>`).join('') || '<div class="empty">Сегодня клуб уже закрывается — посмотрите завтра</div>';
-    const best = ws[0]; $('[data-leave]').textContent = best ? hm(best.m - state.travel) : '—';
-    $('[data-travel]').textContent = '🚶 ' + state.travel + ' мин'; $('[data-travelv]').textContent = state.travel;
-    // недельная тепловая карта
-    let hmH = '<span></span>' + Array.from({ length: 18 }, (_, i) => `<span style="text-align:center">${(i + 6) % 3 === 0 ? i + 6 : ''}</span>`).join('');
-    for (let d = 0; d < 7; d++) { hmH += `<span class="dl${d === n.dow ? ' is-today' : ''}">${DAYS[d]}</span>`; for (let h = 6; h < 24; h++) { const v = loadAt(d, h * 60 + 30); hmH += `<i class="${d === n.dow && Math.floor(n.min / 60) === h ? 'now' : ''}" style="background:${LV(v).c};opacity:${(0.25 + v * 0.75).toFixed(2)}" title="${DAYS[d]} ${h}:00 · ${Math.round(v * 100)}%"></i>`; } }
-    $('[data-heatmap]').innerHTML = hmH;
   }
-  $('[data-travelr]').addEventListener('input', e => { state.travel = +e.target.value; e.target.style.setProperty('--p', ((state.travel - 5) / 35 * 100) + '%'); renderForecast(); save(); });
   $('[data-th]').addEventListener('input', e => { state.th = +e.target.value; $('[data-thv]').textContent = state.th; e.target.style.setProperty('--p', ((state.th - 15) / 55 * 100) + '%'); state.lastAbove = curLoad() * 100 > state.th; });
   $('[data-th]').addEventListener('change', () => { save(); toast('Сообщим, когда загрузка упадёт ниже ' + state.th + '%'); });
   $('[data-toggle="alert"]').addEventListener('click', e => { state.thOn = !state.thOn; e.currentTarget.classList.toggle('is-on', state.thOn); buzz(8); save(); toast(state.thOn ? 'Уведомления о загрузке включены' : 'Уведомления выключены'); });
@@ -1727,7 +1801,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     A.push({ c: 'bad', i: 'i-x', t: 'Беговая дорожка №6 — неисправна', p: 'Скрыта из маршрутов посетителей. Заявка в сервис #1842 · Technogym.', a: ['Позвонить в сервис', 'Готово'] });
     const hot = Object.entries(zs).filter(([k, z]) => z.p > 0.8 && ZONES[k]);
     hot.slice(0, 2).forEach(([k, z]) => A.push({ c: 'warn', i: 'i-users', t: `${ZONES[k].n}: ${Math.round(z.p * 100)}% — тесно`, p: k === 'free' ? 'Предложить посетителям Cross Box и TRX — там сейчас свободно.' : 'Включить усиленную вентиляцию и подсказать свободные зоны в приложении.', a: ['Отправить пуш в зале', 'Позже'] }));
-    if (zs.locker.p > 0.7) A.push({ c: 'info', i: 'i-door', t: 'Раздевалки заполнены на ' + Math.round(zs.locker.p * 100) + '%', p: 'После групповой в ' + hm(Math.ceil(now().min / 60) * 60) + ' ожидается поток — проверить уборку.', a: ['Вызвать клининг'] });
+    const lkw = lkWorst(); if (lkw) A.push({ c: 'info', i: 'i-locker', t: (lkw.g === 'f' ? 'Женская' : 'Мужская') + ' раздевалка: сектор ' + lkw.sec + ' заполнен на ' + Math.round(lkw.p * 100) + '%', p: 'Приложение уже советует гостям сектор ' + lkw.alt + ' — там свободнее. После групповой в ' + hm(Math.ceil(now().min / 60) * 60) + ' ожидается поток — проверить уборку.', a: ['Вызвать клининг'] });
     A.push({ c: 'info', i: 'i-spark', t: 'Окно для акции: ' + (windows(now().dow, 360)[0] ? hm(windows(now().dow, 360)[0].m) : '11:00'), p: 'Самое свободное время дня. Персональное предложение «вне пика» разгрузит вечер на ~7%.', a: ['Создать акцию'] });
     $('[data-kpis]').innerHTML = `<div class="kpi"><small>В клубе</small><span class="num">${Math.round(state.people)}</span> <span>/ ${state.club.cap}</span></div><div class="kpi"><small>Загрузка</small><span class="num" style="color:${LV(L).c}">${Math.round(L * 100)}%</span> <span>${LV(L).n.toLowerCase()}</span></div><div class="kpi"><small>Ожидание тренажёра</small><span class="num">${avgWait.toFixed(1)}′</span> <span>в среднем</span></div><div class="kpi"><small>Сигналы</small><span class="num" style="color:var(--orange)">${Math.min(A.length, 5)}</span> <span>требуют внимания</span></div>`;
     $('[data-alerts]').innerHTML = A.slice(0, 5).map(a => `<div class="al ${a.c}"><span class="ai"><svg class="ico" style="width:18px;height:18px"><use href="#${a.i}"/></svg></span><div><b>${a.t}</b><p>${a.p}</p><div class="al-a">${a.a.map((b, i) => `<button type="button" class="${i ? '' : 'pri'}" data-al>${b}</button>`).join('')}</div></div></div>`).join('');
@@ -1745,7 +1819,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
   function openQR() {
     const L = curLoad();
     openSheet(`<h3 class="sh-title">Пропуск в клуб</h3><p class="sh-sub">Поднесите к сканеру турникета</p><div class="qr-card"><canvas width="29" height="29" data-qr></canvas><b>DDX ${state.club.name}</b><span class="tariff">Infinity</span><small>Демо-пропуск · обновляется каждые 30 с</small></div>
-      <div class="ai-note"><svg class="ico"><use href="#i-users"/></svg><span>Сейчас в клубе <b style="color:var(--text)">${Math.round(state.people)} чел.</b> (${Math.round(L * 100)}%) · очереди на входе нет, свободно ${Math.round((1 - zoneStats().locker.p) * 120)} шкафчиков</span></div>`, 'qr');
+      <div class="ai-note"><svg class="ico"><use href="#i-users"/></svg><span>Сейчас в клубе <b style="color:var(--text)">${Math.round(state.people)} чел.</b> (${Math.round(L * 100)}%) · очереди на входе нет, свободно ${lkFreeTotal()} шкафчиков</span></div>`, 'qr');
     const cv = $('[data-qr]'), g = cv.getContext('2d'), N = 29; let seed = Math.floor(Date.now() / 30000);
     const rr = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
     g.fillStyle = '#fff'; g.fillRect(0, 0, N, N); g.fillStyle = '#000D0F';
@@ -1761,7 +1835,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
   }
   function switchClub(id) {
     const c = CLUBS.find(x => x.id === id); if (!c || c === state.club) { closeSheet(); return; }
-    state.club = c; state.watch.clear(); state.queue = null; save(); initSim(); dots.length = 0; const pp = $('[data-ppl]'); if (pp) pp.innerHTML = '';
+    state.club = c; state.watch.clear(); state.queue = null; save(); lkDirty(); initSim(); dots.length = 0; const pp = $('[data-ppl]'); if (pp) pp.innerHTML = '';
     $('[data-clubname]').textContent = c.name; $('[data-camsline]').textContent = c.cams + ' камер · live';
     closeSheet(); toast('Клуб: DDX ' + c.name); buzz(10); buildPlan(true); render(true);
   }
@@ -1787,7 +1861,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
       <ul style="margin:0;padding-left:18px;color:var(--mute);font-size:14px;display:grid;gap:8px">
         <li><b style="color:var(--text)">Видео не покидает клуб.</b> Анализ идёт на сервере клуба, в приложение приходят только числа.</li>
         <li><b style="color:var(--text)">Лица не распознаются и не хранятся.</b> Модель ищет силуэты и движение на тренажёре.</li>
-        <li><b style="color:var(--text)">Раздевалки, душевые и SPA</b> — без камер: там считаем по шкафчикам и дверям.</li>
+        <li><b style="color:var(--text)">Раздевалки и душевые</b> — без камер: там считаем по замкам шкафчиков.</li>
         <li><b style="color:var(--text)">Ваше местоположение</b> используется только для «когда выходить», если вы разрешили.</li></ul>`, 'privacy');
   }
   function openInstall() {
@@ -1895,6 +1969,10 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
       const p = s.s === 'busy' ? clamp(s.since / (s.since + s.left), 0, 1) : 1;
       html = `<span class="il-r"><svg viewBox="0 0 36 36"><circle class="a" cx="18" cy="18" r="15"/><circle class="b" cx="18" cy="18" r="15" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${(100 - p * 100).toFixed(1)}"/></svg><span>${t.e}</span></span><span><b>${t.n} №${e.n}</b><small>${state.queue ? 'вы ' + state.queue.pos + '-й в очереди' : 'позовём, когда освободится'}</small></span><span class="il-v">${s.s === 'busy' ? '~' + left + ' мин' : 'свободен'}</span><button class="il-x" type="button" data-ilx aria-label="Перестать ждать"><svg class="ico"><use href="#i-x"/></svg></button>`;
       on = true; fn = () => openEq(id);
+    } else if (state.lk && !state.lk.used && !state.wo) {
+      const left = Math.max(0, state.lk.until - Date.now()), pr = clamp(left / (LK_HOLD * 60000), 0, 1);
+      html = `<span class="il-r"><svg viewBox="0 0 36 36"><circle class="a" cx="18" cy="18" r="15"/><circle class="b" cx="18" cy="18" r="15" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${(100 - pr * 100).toFixed(1)}"/></svg><span>🔒</span></span><span><b>Шкафчик ${state.lk.sec}-${state.lk.n} придержан</b><small>откроется по вашему пропуску</small></span><span class="il-v" style="color:var(--orange3)">${fmtLeft(left)}</span><span></span>`;
+      on = true; fn = () => go('lockers');
     } else if (state.remind != null && !state.wo) {
       html = `<span class="il-r"><svg viewBox="0 0 36 36"><circle class="a" cx="18" cy="18" r="15"/></svg><span>⏰</span></span><span><b>Напомню выйти в ${hm(state.remind)}</b><small>в клубе будет свободнее</small></span><span class="il-v" style="color:var(--cyan)">${Math.max(0, Math.round(state.remind - now().min))} мин</span><button class="il-x" type="button" data-ilx aria-label="Отменить напоминание"><svg class="ico"><use href="#i-x"/></svg></button>`;
       on = true; fn = () => go('home');
@@ -1959,10 +2037,12 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
       const fill = Math.round(clamp(loadAt(n.dow, nx[0]) * 24 + 3, 6, 22));
       return { t: (cur ? `Сейчас идёт <b>${cur[1]}</b> (до ${hm(cur[0] + cur[3])}). ` : '') + `Следующая — <b>${nx[1]}</b> в ${hm(nx[0])} (${nx[2]}, ${nx[3]} мин), записано ${fill} из 22.`, a: [[fill >= 22 ? 'В лист ожидания' : 'Записаться', 'book', '', 1]] };
     }
-    if (/шкаф|раздевал|душ|саун|хамам|хаммам|spa|спа|инбоди|inbody/.test(q)) {
-      const z = zoneStats();
-      return { t: `Раздевалки заполнены на <b>${Math.round(z.locker.p * 100)}%</b> — свободно около ${Math.round((1 - z.locker.p) * 120)} шкафчиков. В SPA сейчас ~${Math.round(z.spa.p * 14)} человек. В раздевалках и SPA камер нет — считаем по шкафчикам и дверям.` };
+    if (/шкаф|раздевал|душ/.test(q)) {
+      lkInit(); const f = lkStats('f'), m = lkStats('m'), k = state.lk, r = lkRec(state.room, state.lkPref);
+      if (k) return { t: `Ваш шкафчик <b>${k.sec}-${k.n}</b> ${k.used ? 'открыт — не забудьте освободить после тренировки.' : 'придержан, ещё <em>' + fmtLeft(k.until - Date.now()) + '</em>.'}`, a: [['Показать на плане', 'lockers', '', 1]] };
+      return { t: `Свободно <b>${f.free + m.free} из ${f.tot + m.tot}</b> шкафчиков: в женской раздевалке ${f.free}, в мужской ${m.free}. ${r ? 'Вам советую <b>' + lkName(r.L) + '</b> — ' + r.why[0].toLowerCase() + '.' : 'Выберите раздевалку — подскажу лучший шкафчик и придержу его.'}`, a: [[r ? 'Выбрать шкафчик' : 'Открыть раздевалки', 'lockers', '', 1]] };
     }
+    if (/саун|хамам|хаммам|spa|спа|инбоди|inbody/.test(q)) return { t: 'Сауну и SPA в приложении мы не показываем — только зал, тренажёры и раздевалки. Про шкафчики спросите: подскажу свободные.', a: [['Свободные шкафчики', 'lockers', '', 1]] };
     if (/рядом|друг(ой|ие) клуб|соседн|какой клуб|в каком клубе/.test(q)) {
       const list = CLUBS.filter(c => c !== state.club).map(c => ({ c, v: loadAt(n.dow, n.min, c), d: dist(HOME, c) })).sort((a, b) => a.v - b.v).slice(0, 2);
       return { t: `Сейчас в вашем клубе ${Math.round(L * 100)}%. Свободнее рядом: ${list.map(x => `<b>DDX ${x.c.name}</b> — ${Math.round(x.v * 100)}% (${x.d.toFixed(1)} км)`).join(', ')}.`, a: list.map((x, i) => ['Переключиться: ' + x.c.name, 'club', x.c.id, i === 0 ? 1 : 0]) };
@@ -2013,6 +2093,7 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     else if (k === 'plan') go('plan');
     else if (k === 'map') go('map');
     else if (k === 'forecast') go('forecast');
+    else if (k === 'lockers') go('lockers');
     else if (k === 'qr') openQR();
     else if (k === 'remind') { state.remind = +arg; chatLog.push({ t: `Напомню в <em>${hm(state.remind)}</em>, что пора выходить.` }); renderChat(); render(); }
     else if (k === 'club') switchClub(arg);
@@ -2025,8 +2106,233 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
       r.onend = () => btn.classList.remove('is-rec'); r.onerror = () => { btn.classList.remove('is-rec'); toast('Не удалось распознать — напишите текстом'); };
       r.start(); } catch (e) { toast('Голосовой ввод недоступен'); }
   }
-  $('[data-asksug]').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) { buzz(6); openAI(b.dataset.q); } });
-  $('[data-askmic]').addEventListener('click', e => { e.stopPropagation(); openAI(); setTimeout(() => { const m = $('[data-mic]', sheetB); if (m && m.style.display !== 'none') listen(m); }, 400); });
+  /* ============================================================ ШКАФЧИКИ */
+  // План раздевалки: 2 раздевалки × 4 сектора × 15 шкафчиков = 120. Занятость считаем от загрузки клуба;
+  // ближние к залу сектора заполняются первыми, поэтому приложение советует чуть более дальние, но свободные.
+  const LK_HOLD = 20, LKKEY = 'ddx-vision-locker';
+  const LKG = { w: 28, h: 18, gx: 3, gy: 3, org: { A: [22, 84], B: [128, 84], C: [22, 236], D: [128, 236] } };
+  const LKSECS = ['A', 'B', 'C', 'D'];
+  const LKNEAR = { A: 'у выхода в зал', B: 'у выхода в зал', C: 'у входа', D: 'у входа' };
+  const LKBIAS = { A: 0.1, B: 0.07, C: -0.05, D: -0.08 };
+  const LKVB0 = [0, 0, 360, 440], GYM = { x: 118, y: 40 }, SHW = { x: 290, y: 140 }, M_PER_U = 0.045;
+  const ROOMN = { f: 'Женская раздевалка', m: 'Мужская раздевалка' };
+  const ROWN = ['верхний ряд', 'на уровне груди', 'на уровне пояса', 'ниже пояса', 'нижний ряд'];
+  const lkHash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16; return (h >>> 0) / 4294967295; };
+  const setH = (el, h) => { if (el && el._h !== h) { el._h = h; el.innerHTML = h; } };
+  const fmtLeft = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ':' + pad(s % 60); };
+  let LKS = [], LKI = {}, lkClub = null, lkCache = null, lkCacheAt = 0;
+  const lkDirty = () => { lkCache = null; };
+  function lkInit() {
+    if (lkClub === state.club.id) return; lkClub = state.club.id; LKS = []; LKI = {}; lkCache = null;
+    ['f', 'm'].forEach(g => LKSECS.forEach(sec => {
+      for (let n = 1; n <= 15; n++) {
+        const i = n - 1, col = Math.floor(i / 5), row = i % 5, o = LKG.org[sec], x = o[0] + col * (LKG.w + LKG.gx), y = o[1] + row * (LKG.h + LKG.gy), cx = x + LKG.w / 2, cy = y + LKG.h / 2, id = g + '-' + sec + n;
+        const L = { id, g, sec, n, col, row, x, y, cx, cy, r: lkHash(lkClub + id), ph: lkHash('p' + id) * 6.28, broken: lkHash('b' + lkClub + id) < 0.022, dGym: Math.hypot(cx - GYM.x, cy - GYM.y) * M_PER_U, dShw: Math.hypot(cx - SHW.x, cy - SHW.y) * M_PER_U };
+        LKS.push(L); LKI[id] = L;
+      }
+    }));
+  }
+  const lkName = L => L.sec + '-' + L.n;
+  const lkP = g => clamp(curLoad() * 0.72 + 0.04 + (g === 'f' ? 0.02 : -0.02), 0.02, 0.95);
+  // статус каждого шкафчика: free / held (придержан другим) / busy / broken / mine / used
+  function lkAll() {
+    const t = performance.now(); if (lkCache && t - lkCacheAt < 400) return lkCache;
+    lkInit(); const m = now().min, base = { f: lkP('f'), m: lkP('m') }, out = {};
+    LKS.forEach(L => {
+      if (state.lk && state.lk.id === L.id) out[L.id] = state.lk.used ? 'used' : 'mine';
+      else if (L.broken) out[L.id] = 'broken';
+      else { const p = base[L.g] + LKBIAS[L.sec] + Math.sin(m / 6 + L.ph) * 0.025; out[L.id] = L.r < p ? 'busy' : L.r < p + 0.035 ? 'held' : 'free'; }
+    });
+    lkCache = out; lkCacheAt = t; return out;
+  }
+  function lkStats(g) {
+    const S = lkAll(), res = { free: 0, tot: 0, sec: {} };
+    LKSECS.forEach(s => { res.sec[s] = { free: 0, tot: 0, held: 0 }; });
+    LKS.forEach(L => { if (g && L.g !== g) return; const s = S[L.id]; if (s === 'broken') return; const o = res.sec[L.sec]; o.tot++; res.tot++; if (s === 'free') { o.free++; res.free++; } else if (s === 'held') o.held++; });
+    LKSECS.forEach(s => { const o = res.sec[s]; o.p = 1 - o.free / Math.max(o.tot, 1); });
+    return res;
+  }
+  const lkFreeTotal = () => lkStats().free, lkTotal = () => lkStats().tot;
+  const lkBusyShare = () => { const s = lkStats(); return 1 - s.free / Math.max(s.tot, 1); };
+  function lkWorst() {
+    let w = null;
+    ['f', 'm'].forEach(g => { const st = lkStats(g), alt = Object.entries(st.sec).sort((a, b) => a[1].p - b[1].p)[0][0]; Object.entries(st.sec).forEach(([s, o]) => { if (o.p > 0.82 && s !== alt && (!w || o.p > w.p)) w = { g, sec: s, p: o.p, alt }; }); });
+    return w;
+  }
+  function lkNeigh(L, S) {
+    let c = 0;
+    [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([dc, dr]) => { const cc = L.col + dc, rr = L.row + dr; if (cc < 0 || cc > 2 || rr < 0 || rr > 4) return; const o = LKI[L.g + '-' + L.sec + (cc * 5 + rr + 1)]; if (o && S[o.id] === 'free') c++; });
+    return c;
+  }
+  // рекомендация: близко к нужному выходу, удобная высота, свободные соседи, сектор не забит
+  function lkRec(g, pref) {
+    if (!g) return null;
+    const S = lkAll(), st = lkStats(g); let best = null;
+    LKS.forEach(L => {
+      if (L.g !== g || S[L.id] !== 'free') return;
+      const dist = pref === 'shower' ? L.dShw : L.dGym, nb = lkNeigh(L, S), rowB = [2, 10, 10, 4, 0][L.row];
+      const score = 100 - dist * 4 + rowB + nb * 2.5 - st.sec[L.sec].p * 22;
+      if (!best || score > best.score) best = { L, score, dist, nb };
+    });
+    if (!best) return null;
+    const L = best.L, so = st.sec[L.sec], why = [];
+    why.push((pref === 'shower' ? 'Рядом с душевыми' : 'Рядом с выходом в зал') + ' — около ' + Math.max(1, Math.round(best.dist)) + ' м');
+    if (L.row === 1 || L.row === 2) why.push('Удобная высота — ' + ROWN[L.row]);
+    why.push(best.nb >= 3 ? 'Рядом свободно — не будет тесно' : 'В секторе ' + L.sec + ' свободно ' + so.free + ' из ' + so.tot);
+    return Object.assign(best, { why, so });
+  }
+
+  /* ---- бронь ---- */
+  function lkSave() { try { if (state.lk) localStorage.setItem(LKKEY, JSON.stringify(state.lk)); else localStorage.removeItem(LKKEY); } catch (e) {} }
+  (function lkRestore() {
+    try {
+      const o = JSON.parse(localStorage.getItem(LKKEY) || 'null'), m = o && /^([fm])-([A-D])(\d{1,2})$/.exec(String(o.id || ''));
+      if (m && +m[3] >= 1 && +m[3] <= 15) { const at = +o.at || 0, until = +o.until || 0, used = !!o.used; if (used ? Date.now() - at < 6 * 3600e3 : until > Date.now()) { state.lk = { id: m[0], g: m[1], sec: m[2], n: +m[3], at, until, used }; state.room = m[1]; } }
+    } catch (e) {}
+  })();
+  function lkBook(id) {
+    lkInit(); const L = LKI[id]; if (!L) return false;
+    if (lkAll()[id] !== 'free') { toast('Этот шкафчик уже заняли — выберите другой'); return false; }
+    state.lk = { id, g: L.g, sec: L.sec, n: L.n, at: Date.now(), until: Date.now() + LK_HOLD * 60000, used: false };
+    state.room = L.g; save(); lkSave(); lkDirty(); buzz([10, 40, 10]); toast('Шкафчик ' + lkName(L) + ' придержан на ' + LK_HOLD + ' минут'); return true;
+  }
+  function lkCancel() { const k = state.lk; state.lk = null; lkSave(); lkDirty(); buzz(8); toast(k && k.used ? 'Шкафчик свободен. Хорошей тренировки!' : 'Бронь отменена'); }
+  function lkOpen() { state.lk.used = true; state.lk.at = Date.now(); lkSave(); lkDirty(); buzz([12, 40, 12]); confetti(40); toast('Шкафчик открыт: оставьте вещи и закройте дверцу'); }
+  function lkTick() {
+    const k = state.lk; if (!k || k.used) return;
+    const left = k.until - Date.now();
+    if (left <= 0) { state.lk = null; lkSave(); lkDirty(); notify('Бронь шкафчика снята', 'Время вышло: шкафчик ' + k.sec + '-' + k.n + ' снова свободен', () => go('lockers')); }
+    else if (left < 120000 && !k.warned) { k.warned = true; lkSave(); notify('Шкафчик ' + k.sec + '-' + k.n + ' скоро освободится', 'Бронь снимется через 2 минуты — заходите в раздевалку', () => go('lockers')); }
+  }
+
+  /* ---- главный экран: карточка шкафчика ---- */
+  function renderLockerHome() {
+    const el = $('[data-lockerhome]'); if (!el) return; lkInit();
+    const k = state.lk; let h;
+    if (k) {
+      h = `<div class="lkc is-mine"><span class="lkc-i"><svg class="ico"><use href="#i-locker"/></svg></span><span class="lkc-t"><small>${k.used ? 'Ваш шкафчик · открыт' : 'Придержан за вами'}</small><b>${k.sec}-${k.n}<i> · ${k.g === 'f' ? 'женская' : 'мужская'} раздевалка</i></b>${k.used ? '<small>Не забудьте освободить после тренировки</small>' : '<small>ещё <span class="num" data-lkcd>0:00</span> · откроется по пропуску</small>'}</span>
+        <div class="lkc-b">${k.used ? '<button class="btn btn--o btn--sm" type="button" data-lkact="release">Освободил</button>' : '<button class="btn btn--o btn--sm" type="button" data-lkact="open">Я пришёл</button>'}<button class="btn btn--g btn--sm" type="button" data-go="lockers">План</button></div></div>`;
+    } else {
+      const g = state.room, st = lkStats(g || undefined), bs = Object.entries(st.sec).sort((a, b) => a[1].p - b[1].p)[0][0];
+      h = `<button class="lkc" type="button" data-go="lockers"><span class="lkc-i"><svg class="ico"><use href="#i-locker"/></svg></span><span class="lkc-t"><small>Раздевалка</small><b>Свободные шкафчики</b><small>${g ? 'Свободно ' + st.free + ' из ' + st.tot + ' · лучше сектор ' + bs : 'Свободно ' + st.free + ' из ' + st.tot + ' · выберите раздевалку'}</small></span><svg class="ico lkc-ch"><use href="#i-right"/></svg></button>`;
+    }
+    setH(el, h);
+    const cd = $('[data-lkcd]', el); if (cd && k && !k.used) cd.textContent = fmtLeft(k.until - Date.now());
+  }
+
+  /* ---- экран «Шкафчик» ---- */
+  let lkSvgRoom = null, lkvb = LKVB0.slice(), lkAnim = 0;
+  function lkBuildSvg() {
+    const g = state.room, S = $('[data-lksvg]'); lkSvgRoom = g; let h = '';
+    h += `<rect class="lk-room" x="8" y="8" width="344" height="424" rx="22"/>`;
+    h += `<rect class="lk-door" x="86" y="6" width="64" height="6" rx="3"/><text class="lk-lbl" x="118" y="31" text-anchor="middle">в зал ↑</text>`;
+    h += `<rect class="lk-door in" x="86" y="428" width="64" height="6" rx="3"/><text class="lk-lbl" x="118" y="420" text-anchor="middle">вход из холла ↓</text>`;
+    h += `<rect class="lk-zone" x="238" y="64" width="104" height="124" rx="14"/><text class="lk-lbl" x="290" y="80" text-anchor="middle">душевые</text>`;
+    for (let i = 0; i < 6; i++) h += `<rect class="lk-cub" x="${246 + (i % 3) * 32}" y="${92 + Math.floor(i / 3) * 46}" width="26" height="38" rx="7"/>`;
+    h += `<rect class="lk-zone" x="238" y="200" width="104" height="44" rx="14"/><text class="lk-lbl" x="290" y="226" text-anchor="middle">туалет</text>`;
+    h += `<rect class="lk-zone" x="238" y="256" width="104" height="88" rx="14"/><text class="lk-lbl" x="290" y="274" text-anchor="middle">фены · зеркала</text>`;
+    for (let i = 0; i < 3; i++) h += `<rect class="lk-bench" x="${250 + i * 30}" y="296" width="22" height="30" rx="6"/>`;
+    h += `<rect class="lk-bench" x="30" y="197" width="188" height="10" rx="5"/><rect class="lk-bench" x="30" y="349" width="188" height="10" rx="5"/>`;
+    LKSECS.forEach(sec => { const o = LKG.org[sec]; h += `<rect class="lk-sec" data-lksec="${sec}" x="${o[0] - 6}" y="${o[1] - 20}" width="102" height="128" rx="12"/><text class="lk-sl" x="${o[0]}" y="${o[1] - 6}">${sec}</text><text class="lk-sp" data-lksp="${sec}" x="${o[0] + 90}" y="${o[1] - 6}" text-anchor="end"></text>`; });
+    LKS.filter(L => L.g === g).forEach(L => { h += `<g class="lk-c" data-lk="${L.id}" role="button"><rect class="lk-hit" x="${L.x - 1.5}" y="${L.y - 1.5}" width="${LKG.w + 3}" height="${LKG.h + 3}"/><rect class="b" x="${L.x}" y="${L.y}" width="${LKG.w}" height="${LKG.h}" rx="4"/><path class="x" d="M${L.x + 9} ${L.y + 5}L${L.x + 19} ${L.y + 13}M${L.x + 19} ${L.y + 5}L${L.x + 9} ${L.y + 13}"/><text class="lkn" x="${L.cx}" y="${L.cy + 3}">${L.n}</text></g>`; });
+    h += `<g data-lkfx></g>`;
+    S.innerHTML = h;
+  }
+  function lkSetVB(target, instant) {
+    const S = $('[data-lksvg]'), from = lkvb.slice(), t0 = performance.now(); cancelAnimationFrame(lkAnim);
+    const step = t => { const k = REDUCE || instant ? 1 : Math.min(1, (t - t0) / 600), e = 1 - Math.pow(1 - k, 3); lkvb = from.map((v, i) => v + (target[i] - v) * e); S.setAttribute('viewBox', lkvb.map(v => v.toFixed(1)).join(' ')); if (k < 1) lkAnim = requestAnimationFrame(step); };
+    lkAnim = requestAnimationFrame(step);
+  }
+  function lkZoom(sec, noScroll) {
+    const o = LKG.org[sec]; if (!o) return; state.lkZoom = sec; buzz(8);
+    lkSetVB([o[0] - 14, o[1] - 28, 118, 144.2]); $('[data-lksvg]').classList.add('is-zoom'); $('[data-lkback]').hidden = false;
+    const sc = $('[data-screen="lockers"]'), pl = $('.lk-plan'), beh = REDUCE ? 'auto' : 'smooth';
+    if (noScroll) { sc.scrollTo({ top: 0, behavior: beh }); return; }
+    const r = pl.getBoundingClientRect(), v = sc.getBoundingClientRect(), mid = v.top + 72 + (v.height - 72 - 104) / 2;
+    sc.scrollBy({ top: r.top + r.height / 2 - mid, behavior: beh });
+  }
+  function lkUnzoom(instant) { state.lkZoom = null; lkSetVB(LKVB0, instant); $('[data-lksvg]').classList.remove('is-zoom'); $('[data-lkback]').hidden = true; }
+  function lkFx(rec, k) {
+    const gx = $('[data-lkfx]'); if (!gx) return;
+    const T = k ? LKI[k.id] : rec && rec.L;
+    if (!T || T.g !== state.room) { setH(gx, ''); return; }
+    const edge = (T.sec === 'A' || T.sec === 'C') ? 112 : 128;
+    setH(gx, `<path class="lk-path" d="M120 424V${T.cy.toFixed(1)}H${edge}"/><rect class="lk-ring${k ? ' mine' : ''}" x="${T.x - 2}" y="${T.y - 2}" width="${LKG.w + 4}" height="${LKG.h + 4}" rx="6"/><text class="lk-star${k ? ' mine' : ''}" x="${T.cx}" y="${T.y - 5}" text-anchor="middle">${k ? '●' : '★'}</text>`);
+  }
+  function renderLkMine() {
+    const el = $('[data-lkmine]'); if (!el) return; const k = state.lk; el.hidden = !k; if (!k) { el._h = ''; return; }
+    const L = LKI[k.id];
+    setH(el, `<div class="lk-rec-h"><span class="lk-badge">${k.sec}-${k.n}</span><div><small class="lk-tag">${k.used ? 'Ваш шкафчик' : 'Придержан за вами'}</small><b class="lk-big">${k.used ? 'Шкафчик открыт' : 'Ещё <span class="num" data-lkcd>0:00</span>'}</b><small>${ROOMN[k.g]} · сектор ${k.sec}${L ? ' · ' + ROWN[L.row] : ''}</small></div></div>
+      ${k.used ? '' : '<div class="lk-timer"><i data-lktm></i></div>'}
+      <div class="sh-btns">${k.used ? '<button class="btn btn--o btn--w" type="button" data-lkact="release">Освободить шкафчик</button>' : '<button class="btn btn--o btn--w" type="button" data-lkact="open">Я пришёл — открыть шкафчик</button><button class="btn btn--g btn--w" type="button" data-lkact="show">Показать на плане</button><button class="btn btn--g btn--w" type="button" data-lkact="cancel">Отменить бронь</button>'}</div>`);
+    if (!k.used) { const cd = $('[data-lkcd]', el); if (cd) cd.textContent = fmtLeft(k.until - Date.now()); const tm = $('[data-lktm]', el); if (tm) tm.style.width = Math.max(0, (k.until - Date.now()) / (LK_HOLD * 60000) * 100) + '%'; }
+  }
+  const LKST = { free: 'Свободен', held: 'Придержан другим гостем', busy: 'Занят', broken: 'Не работает', mine: 'Придержан за вами', used: 'Ваш шкафчик' };
+  function renderLockers() {
+    lkInit(); const k = state.lk, ch = $('[data-lkchoose]'), main = $('[data-lkmain]');
+    renderLkMine();
+    if (!state.room) {
+      main.hidden = true; ch.hidden = false;
+      const f = lkStats('f'), m = lkStats('m');
+      setH(ch, ['f', 'm'].map(g => { const s = g === 'f' ? f : m; return `<button class="lk-ch" type="button" data-lkroom="${g}"><b>${ROOMN[g]}</b><small>свободно ${s.free} из ${s.tot}</small><span class="num">${s.free}</span></button>`; }).join('') + '<p class="lk-hint">Выберите, где переодеваетесь: запомним на следующий раз.</p>');
+      return;
+    }
+    ch.hidden = true; main.hidden = false;
+    const g = state.room, st = lkStats(g), S = lkAll(), rec = k ? null : lkRec(g, state.lkPref);
+    $$('[data-seg="room"] button').forEach(b => b.classList.toggle('is-on', b.dataset.v === g)); layoutSeg($('[data-seg="room"]'));
+    $$('[data-pref]').forEach(b => b.classList.toggle('is-on', b.dataset.pref === state.lkPref));
+    const re = $('[data-lkrec]'); re.hidden = !!k;
+    if (!k) setH(re, rec
+      ? `<div class="lk-rec-h"><span class="lk-badge">${lkName(rec.L)}</span><div><small class="lk-tag">★ Рекомендуем</small><b class="lk-big">Шкафчик ${lkName(rec.L)}</b><small>${ROOMN[g]} · сектор ${rec.L.sec}</small></div></div><ul class="lk-why">${rec.why.map(w => '<li>' + w + '</li>').join('')}</ul><div class="sh-btns"><button class="btn btn--o btn--w" type="button" data-lkbook="${rec.L.id}">Забронировать на ${LK_HOLD} минут</button><button class="btn btn--g btn--w" type="button" data-lkshow>Показать на плане</button></div>`
+      : `<div class="lk-rec-h"><span class="lk-badge lk-badge--no">0</span><div><small class="lk-tag">Сейчас</small><b class="lk-big">Свободных нет</b><small>Всё занято или придержано. Загляните через несколько минут: брони снимаются сами.</small></div></div>`);
+    if (lkSvgRoom !== g) lkBuildSvg();
+    $$('[data-lksvg] .lk-c').forEach(c => { const id = c.dataset.lk, s = S[id], isRec = !!(rec && rec.L.id === id), cl = 'lk-c s-' + s + (isRec ? ' is-rec' : ''); if (c.getAttribute('class') !== cl) { c.setAttribute('class', cl); c.setAttribute('aria-label', 'Шкафчик ' + id.slice(2) + ': ' + LKST[s].toLowerCase()); } });
+    LKSECS.forEach(sc => { const t = $(`[data-lksp="${sc}"]`), o = st.sec[sc]; if (t) { t.textContent = o.free + '/' + o.tot; t.style.fill = LV(o.p).c; } });
+    lkFx(rec, k);
+    setH($('[data-lksecs]'), LKSECS.map(sc => { const o = st.sec[sc], lv = LV(o.p), best = !!(rec && rec.L.sec === sc); return `<button class="lk-sc${best ? ' is-best' : ''}" type="button" data-lksec="${sc}" style="--lvl:${lv.c}"><span class="lk-sc-h"><b>${sc}</b><span class="num">${o.free}<small>/${o.tot}</small></span></span><small>${LKNEAR[sc]}${best ? ' · рекомендуем' : ''}</small><span class="mb"><i style="width:${Math.round(o.p * 100)}%"></i></span></button>`; }).join(''));
+  }
+
+  /* ---- карточка шкафчика ---- */
+  function openLocker(id) {
+    lkInit(); const L = LKI[id]; if (!L) return; buzz(8);
+    let last = '';
+    const html = () => {
+      const S = lkAll(), st = S[id], k = state.lk, rec = lkRec(L.g, state.lkPref), cls = { free: 'free', held: 'soon', busy: 'busy', broken: 'service', mine: 'free', used: 'free' }[st];
+      let btns = '';
+      if (st === 'free') btns = `<button class="btn btn--o btn--w" type="button" data-lkbook="${id}">${k ? 'Перенести бронь сюда' : 'Забронировать на ' + LK_HOLD + ' минут'}</button>`;
+      else if (st === 'mine') btns = '<button class="btn btn--o btn--w" type="button" data-lkact="open">Я пришёл — открыть</button><button class="btn btn--g btn--w" type="button" data-lkact="cancel">Отменить бронь</button>';
+      else if (st === 'used') btns = '<button class="btn btn--o btn--w" type="button" data-lkact="release">Освободить шкафчик</button>';
+      else if (rec && !k) btns = `<button class="btn btn--o btn--w" type="button" data-lkbook="${rec.L.id}">Взять рекомендованный ${lkName(rec.L)}</button>`;
+      const note = st === 'free' ? `Бронь держится ${LK_HOLD} минут — за это время вы дойдёте. Шкафчик откроется вашим пропуском.` : st === 'held' ? 'Его придержал другой гость. Если он не придёт, бронь снимется сама.' : st === 'busy' ? 'Шкафчик занят. Выберите зелёный или возьмите рекомендованный.' : st === 'broken' ? 'Замок неисправен, мастер уже вызван.' : 'Вещи в безопасности: шкафчик откроется только вашим пропуском.';
+      return `<div class="eq-head"><div class="lk-badge">${lkName(L)}</div><div><h3 class="sh-title">Шкафчик ${lkName(L)}</h3><p class="sh-sub" style="margin:0">${ROOMN[L.g]} · сектор ${L.sec}</p><span class="eq-stat s-${cls}"><i></i>${LKST[st]}</span></div></div>
+        <div class="eq-grid"><div class="eg"><small>До выхода в зал</small><b>~${Math.max(1, Math.round(L.dGym))} <i>м</i></b></div><div class="eg"><small>До душевых</small><b>~${Math.max(1, Math.round(L.dShw))} <i>м</i></b></div></div>
+        <div class="ai-note"><svg class="ico"><use href="#i-locker"/></svg><span><b style="color:var(--text)">${ROWN[L.row].charAt(0).toUpperCase() + ROWN[L.row].slice(1)}.</b> ${note}</span></div>
+        <div class="sh-btns">${btns}</div>`;
+    };
+    last = html();
+    openSheet(last, 'locker', () => { const h = html(); if (h !== last) { last = h; sheetB.innerHTML = h; } });
+  }
+
+  /* ---- клики ---- */
+  app.addEventListener('click', e => {
+    const t = e.target; let b;
+    if ((b = t.closest('[data-lkroom]'))) { state.room = b.dataset.lkroom; save(); lkSvgRoom = null; lkUnzoom(true); buzz(8); renderLockers(); return; }
+    if ((b = t.closest('[data-seg="room"] button'))) { if (state.room !== b.dataset.v) { state.room = b.dataset.v; save(); lkSvgRoom = null; lkUnzoom(true); buzz(6); renderLockers(); } return; }
+    if ((b = t.closest('[data-pref]'))) { state.lkPref = b.dataset.pref; save(); buzz(5); renderLockers(); return; }
+    if ((b = t.closest('[data-lk]'))) { openLocker(b.dataset.lk); return; }
+    if ((b = t.closest('[data-lksec]'))) { lkZoom(b.dataset.lksec); return; }
+    if (t.closest('[data-lkback]')) { buzz(5); lkUnzoom(); return; }
+    if (t.closest('[data-lkshow]')) { const r = state.lk ? LKI[state.lk.id] : (lkRec(state.room, state.lkPref) || {}).L; if (r) lkZoom(r.sec); return; }
+    if ((b = t.closest('[data-lkbook]'))) {
+      if (lkBook(b.dataset.lkbook)) { closeSheet(); lkSvgRoom = null; if (state.screen !== 'lockers') go('lockers'); else renderLockers(); renderLockerHome(); renderIsland(); lkZoom(state.lk.sec, true); }
+      return;
+    }
+    if ((b = t.closest('[data-lkact]'))) {
+      const a = b.dataset.lkact;
+      if (a === 'open' && state.lk) lkOpen(); else if (a === 'cancel' || a === 'release') lkCancel(); else if (a === 'show' && state.lk) { state.room = state.lk.g; lkZoom(state.lk.sec); }
+      closeSheet(); renderLockers(); renderLockerHome(); renderIsland();
+    }
+  });
 
   /* ================================================================ РЕНДЕР */
   let frame = 0;
@@ -2035,13 +2341,14 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
     if (state.screen === 'map' || full) { renderMapState(); renderEqList(); }
     if (state.screen === 'forecast' && (full || frame % 10 === 0)) { renderDays(); renderForecast(); }
     if (state.screen === 'admin') renderAdmin();
+    if (state.screen === 'lockers') renderLockers();
     if (state.screen === 'plan' && (full || frame % 3 === 0)) buildPlan(false);
     if (state.wo && frame % 2 === 0) renderWO();
-    if (sheetUpd && (sheetKind === 'eq' || sheetKind === 'clubs')) sheetUpd();
+    if (sheetUpd && (sheetKind === 'eq' || sheetKind === 'clubs' || sheetKind === 'locker')) sheetUpd();
     $$('[data-clock]').forEach(c => { const d = new Date(); c.textContent = d.getHours() + ':' + pad(d.getMinutes()); });
   }
   function loop() {
-    frame++; tick(); trackPeople(); syncDots(); render(false); renderIsland(); showEvent();
+    frame++; tick(); trackPeople(); syncDots(); lkTick(); render(false); renderIsland();
   }
   // анимации кадров: точки людей, камеры, таймер отдыха
   function raf(t) {
@@ -2056,12 +2363,13 @@ input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
 
   /* ================================================================ СТАРТ */
   $('[data-clubname]').textContent = state.club.name; $('[data-camsline]').textContent = state.club.cams + ' камер · live';
-  $('[data-travelr]').value = state.travel; $('[data-th]').value = state.th; $('[data-thv]').textContent = state.th; $('[data-toggle="alert"]').classList.toggle('is-on', state.thOn);
+  $('[data-th]').value = state.th; $('[data-thv]').textContent = state.th; $('[data-toggle="alert"]').classList.toggle('is-on', state.thOn);
   $$('[data-dur] button').forEach(x => x.classList.toggle('is-on', +x.dataset.d === state.dur));
   initSim(); buildMap(); buildCams(); renderGoals(); buildPlan(true); renderDays(); renderForecast(); syncDots(); layoutSeg($('[data-seg="layer"]'));
-  ['[data-travelr]', '[data-th]'].forEach(s => { const r = $(s); r.dispatchEvent(new Event('input')); });
+  ['[data-th]'].forEach(s => { const r = $(s); r.dispatchEvent(new Event('input')); });
   render(true);
   setInterval(loop, 1200);
+  setInterval(() => { if (state.lk && !state.lk.used) { lkTick(); renderLockerHome(); renderIsland(); if (state.screen === 'lockers') renderLkMine(); } }, 1000);
   setInterval(() => { if (state.wo && state.wo.rest) { renderWO(); if (performance.now() >= state.wo.restT) { state.wo.rest = 0; buzz([30, 60, 30]); toast('Отдых окончен — следующий подход!'); renderWO(); } } }, 1000);
   requestAnimationFrame(raf);
   addEventListener('resize', () => layoutSeg($('[data-seg="layer"]')));
