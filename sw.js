@@ -1,7 +1,8 @@
 /* DDX Vision — сервис-воркер: приложение работает без интернета и сразу подхватывает новую версию */
-const VER = 'ddx-vision-v4';
+const VER = 'ddx-vision-v5';
 const FONTS = 'https://fonts.googleapis.com/css2?family=Onest:wght@400..700&family=Oswald:wght@500..700&display=swap';
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
+const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png',
+  'ai/ai.css', 'ai/core.js', 'ai/coach.js', 'ai/twin.js', 'ai/routing.js', 'ai/ui.js', 'ai/ui2.js', 'ai/ui3.js', 'ai/ui4.js'];
 
 /* при установке берём файлы с сервера напрямую, мимо кэша браузера (иначе можно застрять на старой версии) */
 const fresh = url => fetch(new Request(url, { cache: 'reload' })).then(r => { if (!r.ok) throw new Error(url); return r; });

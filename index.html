@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>DDX Vision — загрузка клуба в реальном времени</title>
-<meta name="description" content="Концепт приложения для DDX Fitness: загрузка клуба, свободные тренажёры, свободные шкафчики с бронью, прогноз «когда освободится» и маршрут тренировки без очередей.">
+<title>DDX Vision — интеллект физического клуба</title>
+<meta name="description" content="Концепт DDX Vision для DDX Fitness: цифровой двойник клуба (AI LIVE), прогноз перегрузок, умный маршрут тренировки, Vision Coach, Body Twin и Command Center управляющего. Демо-данные.">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -930,10 +930,11 @@ body{background:var(--bg0);color:var(--text)}
 .splash{background:var(--bg0)}
 .wo{background:var(--bg0)}
 /* виджеты профиля и цифры в «Пульте клуба» */
-.wdg.o,.wdg.o *{color:#fff}
+.wdg.o,.wdg.o *,.wdg.o .num{color:#fff}
 .wdg.o small{opacity:.85}
 .kpi .num{color:var(--text)}
 </style>
+<link rel="stylesheet" href="ai/ai.css">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -981,18 +982,21 @@ body{background:var(--bg0);color:var(--text)}
   <!-- ======================== левая панель (только на компьютере) ======================== -->
   <aside class="pitch">
     <div class="pitch-logo"><span class="wm"><b>DDX</b> <i>VISION</i></span></div>
-    <h1>Зал, который <em>видно</em> заранее</h1>
-    <p>Камеры клуба считают людей и занятые тренажёры, а приложение подсказывает, когда прийти, что свободно прямо сейчас в каком порядке тренироваться без очередей и какой шкафчик в раздевалке свободен.</p>
+    <h1>Клуб, который <em>видит</em></h1>
+    <p>Камеры считают людей и тренажёры, AI понимает загрузку и прогнозирует очереди. Посетителю — когда прийти и как тренироваться без ожидания, управляющему — состояние клуба за 10 секунд.</p>
     <ul class="feat">
       <li><span class="fi"><svg class="ico"><use href="#i-gauge"/></svg></span><span><b>Загрузка клуба в реальном времени</b>по зонам и тренажёрам</span></li>
       <li><span class="fi"><svg class="ico"><use href="#i-clock"/></svg></span><span><b>Прогноз «когда освободится»</b>по минутам и процентам</span></li>
       <li><span class="fi"><svg class="ico"><use href="#i-route"/></svg></span><span><b>Умный маршрут тренировки</b>перестраивается вокруг очередей</span></li>
       <li><span class="fi"><svg class="ico"><use href="#i-locker"/></svg></span><span><b>Свободные шкафчики и бронь</b>план раздевалки и лучший шкафчик</span></li>
       <li><span class="fi"><svg class="ico"><use href="#i-bell"/></svg></span><span><b>«Позови, когда освободится»</b>и виртуальная очередь</span></li>
-      <li><span class="fi"><svg class="ico"><use href="#i-shield"/></svg></span><span><b>Без лиц</b>только силуэты и счётчики</span></li>
+      <li><span class="fi"><svg class="ico"><use href="#i-eye"/></svg></span><span><b>AI LIVE и Command Center</b>цифровой двойник клуба и прогноз очередей</span></li>
+      <li><span class="fi"><svg class="ico"><use href="#i-shield"/></svg></span><span><b>Без лиц</b>только силуэты и счётчики, видео не хранится</span></li>
     </ul>
     <div class="pitch-btns">
-      <button class="btn btn--o btn--sm" type="button" data-act="admin">Режим управляющего</button>
+      <button class="btn btn--o btn--sm" type="button" data-act="demo">Демо-сценарий</button>
+      <button class="btn btn--g btn--sm" type="button" data-act="live">AI LIVE</button>
+      <button class="btn btn--g btn--sm" type="button" data-act="command">Command Center</button>
       <button class="btn btn--g btn--sm" type="button" data-act="time">Тайм-машина</button>
     </div>
     <p class="note">Концепт. Данные камер симулированы. Не является официальным приложением DDX Fitness.</p>
@@ -1042,6 +1046,8 @@ body{background:var(--bg0);color:var(--text)}
             </div>
             <div class="verdict" data-verdict></div>
           </div>
+
+          <div class="rv" data-ailive></div>
 
           <div class="rv" data-lockerhome></div>
 
@@ -1155,6 +1161,12 @@ body{background:var(--bg0);color:var(--text)}
           <div class="sec rv"><div class="card reco" data-reco></div></div>
           <div class="sec rv"><button class="btn btn--g btn--w" type="button" data-go="home">Вернуться к режиму посетителя</button></div>
         </section>
+
+        <!-- ============ AI-слой: экраны наполняются модулями ai/ui*.js ============ -->
+        <section class="screen" data-screen="live" aria-label="AI LIVE"><div data-live></div></section>
+        <section class="screen" data-screen="command" aria-label="Command Center"><div data-command></div></section>
+        <section class="screen" data-screen="coach" aria-label="Vision Coach"><div data-coach></div></section>
+        <section class="screen" data-screen="twin" aria-label="Body Twin"><div data-twin></div></section>
       </main>
 
       <nav class="tabbar" aria-label="Разделы">
@@ -1180,15 +1192,15 @@ body{background:var(--bg0);color:var(--text)}
   <aside class="how">
     <h3>Как это работает</h3>
     <div class="pipe">
-      <div class="pipe-s"><b>Камеры клуба</b><span>12 существующих камер видеонаблюдения, без новых датчиков</span></div>
+      <div class="pipe-s"><b>Камеры клуба</b><span>Существующее видеонаблюдение, без новых датчиков</span></div>
       <div class="pipe-a"></div>
-      <div class="pipe-s is-ai"><b>AI на сервере клуба</b><span>Находит силуэты и занятость тренажёров. Лица не распознаются, видео не уходит из клуба</span></div>
+      <div class="pipe-s is-ai"><b>Edge Vision</b><span>Силуэты, зоны, ключевые точки. Лица не распознаются, видео не покидает клуб</span></div>
       <div class="pipe-a"></div>
-      <div class="pipe-s"><b>Счётчики и события</b><span>«жим ногами занят 6 мин, 3-й подход», «кардио 64%»</span></div>
+      <div class="pipe-s"><b>Шина событий</b><span>Только метаданные: занятость зон, статусы станций, метрики движения</span></div>
       <div class="pipe-a"></div>
-      <div class="pipe-s is-ai"><b>Модель прогноза</b><span>История клуба + турникеты + расписание + погода → загрузка на 3 часа вперёд</span></div>
+      <div class="pipe-s is-ai"><b>Движки DDX Vision</b><span>Загрузка · трафик · оборудование · маршрут · Vision Coach · Body Twin · возвращение</span></div>
       <div class="pipe-a"></div>
-      <div class="pipe-s"><b>Приложение DDX</b><span>Карта, прогноз, очередь к тренажёру и маршрут без ожидания</span></div>
+      <div class="pipe-s"><b>Приложение и Command Center</b><span>Посетителю — персональный маршрут, управляющему — состояние клуба</span></div>
     </div>
     <p class="how-note"><b>Шкафчики.</b> Замки сообщают «занят / свободен», приложение показывает план раздевалки и держит бронь 20 минут. В концепте эти данные симулированы.</p>
   </aside>
@@ -1214,6 +1226,8 @@ body{background:var(--bg0);color:var(--text)}
   const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
   const DAYS_F = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
   const app = $('#app');
+  // мост для модулей ai/*.js: хуки жизненного цикла и доступ к данным клуба (заполняется перед стартом)
+  const API = window.DDX = { version: 5, hooks: { tick: [], render: [], frame: [], sim: [], woStart: [], woEnd: [], woStep: [] }, acts: {}, woExtra: null, onGo: null };
 
   /* ============================================================ ДАННЫЕ */
   // клубы — реальные адреса и площади с ddxfitness.ru; вместимость — оценка для демо
@@ -1348,6 +1362,7 @@ body{background:var(--bg0);color:var(--text)}
     const lp = state.ss.bench2; if (lp) { lp.s = 'busy'; lp.since = 41; lp.left = 12; }
     state.people = Math.round(L * state.club.cap);
     state.hist = [];
+    API.hooks.sim.forEach(f => f());
   }
   const stOf = id => { const s = state.ss[id], e = state.eq.find(x => x.id === id), t = T[e.t]; if (!s) return 'free'; if (s.s === 'service') return 'service'; if (t.cap) return s.used >= t.cap ? 'busy' : s.used >= t.cap - 1 ? 'soon' : 'free'; if (s.s === 'busy') return s.left <= 3 ? 'soon' : 'busy'; return 'free'; };
   function tick() {
@@ -1463,7 +1478,7 @@ body{background:var(--bg0);color:var(--text)}
   $('[data-push]').addEventListener('click', () => { $('[data-push]').classList.remove('is-on'); pushFn && pushFn(); });
 
   /* ------------------------------------------------------------ навигация */
-  const ORDER = ['home', 'map', 'plan', 'lockers', 'forecast', 'admin'];
+  const ORDER = ['home', 'map', 'plan', 'lockers', 'forecast', 'admin', 'live', 'command', 'coach', 'twin'];
   let ignorePop = false;
   function go(name, opt = {}) {
     if (!name || name === state.screen) { if (name) $(`[data-screen="${name}"]`).scrollTo({ top: 0, behavior: 'smooth' }); return; }
@@ -1475,6 +1490,7 @@ body{background:var(--bg0);color:var(--text)}
     $(`[data-screen="${name}"]`).scrollTop = 0;
     render(true);
     if (name === 'map') layoutSeg($('[data-seg="layer"]'));
+    if (API.onGo) API.onGo(name);
   }
   app.addEventListener('click', e => {
     const g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); return; }
@@ -1484,9 +1500,10 @@ body{background:var(--bg0);color:var(--text)}
   function act(k, el) {
     buzz(6);
     if (k === 'qr') openQR(); else if (k === 'clubs') openClubs(); else if (k === 'profile') openProfile(); else if (k === 'notif') openNotifs();
-    else if (k === 'time') openTime(); else if (k === 'admin') { go('admin'); } else if (k === 'start') startWorkout();
+    else if (k === 'time') openTime(); else if (k === 'admin') { if (API.acts.command) API.acts.command(); else go('admin'); } else if (k === 'start') startWorkout();
     else if (k === 'favs') openFavs();
     else if (k === 'ai') openAI();
+    else if (API.acts[k]) API.acts[k](el);
     else if (k === 'remind') { state.remind = +el.dataset.at; toast('Напомним в ' + hm(state.remind) + ' — пора будет выходить'); renderHome(); }
   }
 
@@ -1747,6 +1764,7 @@ body{background:var(--bg0);color:var(--text)}
   $('[data-goals]').addEventListener('click', e => { const b = e.target.closest('[data-goal]'); if (!b) return; state.goal = b.dataset.goal; buzz(6); renderGoals(); buildPlan(true); save(); });
   $('[data-dur]').addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (!b) return; state.dur = +b.dataset.d; $$('[data-dur] button').forEach(x => x.classList.toggle('is-on', x === b)); buzz(6); buildPlan(true); save(); });
   function freeAt(type) { // через сколько минут освободится ближайший тренажёр типа
+    const ai = API.freeAtAI && API.freeAtAI(type); if (ai) return ai; // AI-слой учитывает очереди и недоступные станции
     const list = state.eq.filter(e => e.t === type && stOf(e.id) !== 'service'); if (!list.length) return { w: 0, id: null };
     let best = { w: 1e9, id: null };
     list.forEach(e => { const s = state.ss[e.id]; const w = T[type].cap ? (s.used < T[type].cap ? 0 : 3) : s.s === 'busy' ? s.left : 0; if (w < best.w) best = { w, id: e.id }; });
@@ -1788,14 +1806,14 @@ body{background:var(--bg0);color:var(--text)}
     state.wo = { i: 0, set: 0, rest: 0, restT: 0, t0: performance.now() };
     history.pushState({ ddx: 'wo' }, '');
     try { navigator.wakeLock && navigator.wakeLock.request('screen').then(l => { state.lock = l; }).catch(() => {}); } catch (e) {}
-    wo.classList.add('is-on'); wo.setAttribute('aria-hidden', 'false'); buzz([10, 40, 10]); renderWO(); renderPlan();
+    wo.classList.add('is-on'); wo.setAttribute('aria-hidden', 'false'); buzz([10, 40, 10]); API.hooks.woStart.forEach(f => f()); renderWO(); renderPlan();
   }
   function endWorkout(done, fromPop) {
     try { state.lock && state.lock.release(); state.lock = null; } catch (e) {}
     if (!fromPop && history.state && history.state.ddx === 'wo') { ignorePop = true; history.back(); }
     if (done && state.wo) { const mins = Math.round((performance.now() - state.wo.t0) / 60000) || Math.round(state.plan.total); state.streak = Math.min(4, state.streak + 1); notify('Тренировка завершена 💪', `${state.plan.order.length} упражнений · ожидание всего ${Math.round(state.plan.wait)} мин · +150 баллов вне пика`); }
     if (done) confetti(110);
-    state.wo = null; wo.classList.remove('is-on'); wo.setAttribute('aria-hidden', 'true'); renderPlan();
+    state.wo = null; wo.classList.remove('is-on'); wo.setAttribute('aria-hidden', 'true'); API.hooks.woEnd.forEach(f => f()); renderPlan();
   }
   function renderWO() {
     const W = state.wo; if (!W) return;
@@ -1804,7 +1822,7 @@ body{background:var(--bg0);color:var(--text)}
     const nxF = nx ? freeAt(nx.ex[1]) : null;
     const restLeft = W.rest ? Math.max(0, Math.ceil((W.restT - performance.now()) / 1000)) : 0;
     const ringP = W.rest ? restLeft / 90 : 0;
-    wo.innerHTML = `<div class="wo-top"><button class="top-btn" type="button" data-wo-x aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button><span class="wo-step">Упражнение ${W.i + 1} из ${P.order.length}</span><span class="chip" style="height:30px">${Math.floor((performance.now() - W.t0) / 60000)}′</span></div>
+    wo.innerHTML = `<div class="wo-top"><button class="top-btn" type="button" data-wo-x aria-label="Закрыть"><svg class="ico"><use href="#i-x"/></svg></button><span class="wo-step">Упражнение ${W.i + 1} из ${P.order.length}</span><span class="chip" style="height:30px">${Math.floor((performance.now() - W.t0) / 60000)}′</span></div>${API.woExtra ? API.woExtra(W, P, o) : ''}
       <h2>${o.ex[0]}</h2><p class="wo-eq">${e ? T[e.t].e + ' ' + T[e.t].n + (T[e.t].cap ? '' : ' №' + e.n) + ' · ' + ZONES[T[e.t].z].n : ''}</p>
       <div class="wo-ring"><svg viewBox="0 0 230 230"><circle class="r1" cx="115" cy="115" r="100"/><circle class="r2" cx="115" cy="115" r="100" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${(100 - ringP * 100).toFixed(1)}"/></svg>
         <div>${W.rest ? `<b class="num">${restLeft}</b><span>отдых, сек</span>` : sets > 1 ? `<b class="num">${W.set + 1}<small style="font-size:24px;opacity:.5">/${sets}</small></b><span>подход</span>` : `<b class="num">${Math.round(exMins(o.ex))}′</b><span>в своём темпе</span>`}</div></div>
@@ -1816,13 +1834,13 @@ body{background:var(--bg0);color:var(--text)}
   wo.addEventListener('click', e => {
     const W = state.wo; if (!W) return; const o = state.plan.order[W.i];
     if (e.target.closest('[data-wo-x]')) { endWorkout(false); return; }
-    if (e.target.closest('[data-wo-skip]')) { buzz(6); if (W.rest) W.rest = 0; else { W.i++; W.set = 0; } renderWO(); renderPlan(); return; }
+    if (e.target.closest('[data-wo-skip]')) { buzz(6); if (W.rest) W.rest = 0; else { W.i++; W.set = 0; } API.hooks.woStep.forEach(f => f()); renderWO(); renderPlan(); return; }
     if (e.target.closest('[data-wo-done]')) {
       buzz(12);
       if (W.rest) { W.rest = 0; }
       else if (o.ex[2] > 1 && W.set + 1 < o.ex[2]) { W.set++; W.rest = 1; W.restT = performance.now() + 90000; }
       else { W.i++; W.set = 0; W.rest = 0; if (W.i >= state.plan.order.length) { endWorkout(true); return; } toast('Следующее: ' + state.plan.order[W.i].ex[0]); }
-      renderWO(); renderPlan();
+      API.hooks.woStep.forEach(f => f()); renderWO(); renderPlan();
     }
   });
 
@@ -1951,12 +1969,16 @@ body{background:var(--bg0);color:var(--text)}
         <button class="ml" type="button" data-pm="privacy"><span class="mi"><svg class="ico"><use href="#i-shield"/></svg></span><span><b>Приватность камер</b><small>как мы видим зал без лиц</small></span><svg class="ico"><use href="#i-right"/></svg></button>
         <button class="ml" type="button" data-pm="time"><span class="mi"><svg class="ico"><use href="#i-time"/></svg></span><span><b>Тайм-машина</b><small>посмотреть клуб в любое время</small></span><svg class="ico"><use href="#i-right"/></svg></button>
         <button class="ml" type="button" data-pm="install"><span class="mi"><svg class="ico"><use href="#i-phone"/></svg></span><span><b>Установить на телефон</b><small>иконка на экране «Домой»</small></span><svg class="ico"><use href="#i-right"/></svg></button>
-        <button class="ml orange" type="button" data-pm="admin"><span class="mi"><svg class="ico"><use href="#i-cam"/></svg></span><span><b>Режим управляющего</b><small>камеры, сигналы, аналитика</small></span><svg class="ico"><use href="#i-right"/></svg></button>
-      </div><p class="ver">DDX Vision · версия 4 · 7 октября 2026</p>`, 'profile');
+        <button class="ml" type="button" data-pm="twin"><span class="mi"><svg class="ico"><use href="#i-heart"/></svg></span><span><b>Body Twin</b><small>прогресс, цели, тренировочная история</small></span><svg class="ico"><use href="#i-right"/></svg></button>
+        <button class="ml" type="button" data-pm="coach"><span class="mi"><svg class="ico"><use href="#i-eye"/></svg></span><span><b>Vision Coach</b><small>подсказки по технике · только с вашего согласия</small></span><svg class="ico"><use href="#i-right"/></svg></button>
+        <button class="ml" type="button" data-pm="privacyai"><span class="mi"><svg class="ico"><use href="#i-shield"/></svg></span><span><b>Данные и согласия</b><small>что хранится, сроки, удаление</small></span><svg class="ico"><use href="#i-right"/></svg></button>
+        <button class="ml orange" type="button" data-pm="admin"><span class="mi"><svg class="ico"><use href="#i-cam"/></svg></span><span><b>Command Center</b><small>для управляющего: клуб за 10 секунд</small></span><svg class="ico"><use href="#i-right"/></svg></button>
+        <button class="ml orange" type="button" data-pm="demo"><span class="mi"><svg class="ico"><use href="#i-play"/></svg></span><span><b>Демо-сценарий</b><small>для презентации руководству</small></span><svg class="ico"><use href="#i-right"/></svg></button>
+      </div><p class="ver">DDX Vision · версия 5 · 8 октября 2026</p>`, 'profile');
   }
   sheetB.addEventListener('click', e => {
     const b = e.target.closest('[data-pm]'); if (!b) return; buzz(6); const k = b.dataset.pm;
-    if (k === 'admin') go('admin'); else if (k === 'time') openTime(); else if (k === 'privacy') openPrivacy(); else if (k === 'install') openInstall();
+    if (k === 'admin') act('admin'); else if (k === 'time') openTime(); else if (k === 'privacy') openPrivacy(); else if (k === 'install') openInstall(); else if (API.acts[k]) API.acts[k]();
     else if (k === 'push') { if ('Notification' in window) Notification.requestPermission().then(p => { toast(p === 'granted' ? 'Уведомления включены' : 'Уведомления не разрешены в браузере'); if (p === 'granted') notify('Готово!', 'Так будут выглядеть уведомления DDX Vision'); }); else toast('Браузер не поддерживает уведомления'); }
   });
   function openPrivacy() {
@@ -2446,24 +2468,32 @@ body{background:var(--bg0);color:var(--text)}
     if (state.screen === 'forecast' && (full || frame % 10 === 0)) { renderDays(); renderForecast(); }
     if (state.screen === 'admin') renderAdmin();
     if (state.screen === 'lockers') renderLockers();
-    if (state.screen === 'plan' && (full || frame % 3 === 0)) buildPlan(false);
+    if (state.screen === 'plan' && !state.wo && (full || frame % 3 === 0)) buildPlan(false); // во время тренировки маршрут меняет только Routing Engine
     if (state.wo && frame % 2 === 0) renderWO();
-    if (sheetUpd && (sheetKind === 'eq' || sheetKind === 'clubs' || sheetKind === 'locker')) sheetUpd();
+    if (sheetUpd) sheetUpd();
+    API.hooks.render.forEach(f => { try { f(full); } catch (e) { console.error(e); } });
     $$('[data-clock]').forEach(c => { const d = new Date(); c.textContent = d.getHours() + ':' + pad(d.getMinutes()); });
   }
   function loop() {
-    frame++; tick(); trackPeople(); syncDots(); lkTick(); render(false); renderIsland();
+    frame++; tick(); API.hooks.tick.forEach(f => { try { f(); } catch (e) { console.error(e); } }); trackPeople(); syncDots(); lkTick(); render(false); renderIsland();
   }
   // анимации кадров: точки людей, камеры, таймер отдыха
   function raf(t) {
     requestAnimationFrame(raf);
     if (document.hidden) return;
     animDots(); drawLiquid(t);
+    API.hooks.frame.forEach(f => { try { f(t); } catch (e) { console.error(e); } });
     if (state.screen === 'admin') CAMS.forEach(c => drawCam(c, t));
   }
   // при смене шторки — сбросить временные обработчики тайм-машины
   const mo = new MutationObserver(() => { if (sheetKind !== 'time') { sheetB.oninput = null; sheetB.onclick = null; } });
   mo.observe(sheetB, { childList: true });
+
+  Object.assign(API, {
+    $, $$, clamp, rnd, pick, pad, hm, plural, REDUCE, buzz, state, T, ZONES, GOALS, CLASSES, TIPS, CLUBS, DAYS, DAYS_F, LV, svgNS, app, sheet, sheetB,
+    now, mskNow, curLoad, loadAt, predict, windows, stOf, typeStat, bestUnit, freeAt, exMins, zoneStats, eqLine,
+    openSheet, closeSheet, go, toast, notify, openEq, startWorkout, endWorkout, buildPlan, renderPlan, renderGoals, renderWO, render, save, confetti, tweenNum, setH, layoutSeg, initSim, lkFreeTotal
+  });
 
   /* ================================================================ СТАРТ */
   $('[data-clubname]').textContent = state.club.name; $('[data-camsline]').textContent = state.club.cams + ' камер · live';
@@ -2514,5 +2544,14 @@ body{background:var(--bg0);color:var(--text)}
   addEventListener('appinstalled',function(){try{localStorage.setItem(KEY,'1')}catch(e){}box.remove()});
 })();
 </script>
+<!-- AI-слой DDX Vision: ядро, Vision Coach, Body Twin, маршрут, интерфейс -->
+<script src="ai/core.js"></script>
+<script src="ai/coach.js"></script>
+<script src="ai/twin.js"></script>
+<script src="ai/routing.js"></script>
+<script src="ai/ui.js"></script>
+<script src="ai/ui2.js"></script>
+<script src="ai/ui3.js"></script>
+<script src="ai/ui4.js"></script>
 </body>
 </html>
