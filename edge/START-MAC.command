@@ -31,7 +31,12 @@ echo "Запускаю. Если Mac спросит доступ к камере
 echo "Safari откроется сам через несколько секунд."
 echo "Остановить: клавиша q в окне с видео или Ctrl+C здесь."
 echo
-( sleep 8; if command -v open >/dev/null 2>&1; then open -a Safari "http://localhost:8787/#live" 2>/dev/null || open "http://localhost:8787/#live"; fi ) &
+( sleep 8; if command -v open >/dev/null 2>&1; then
+    open -a Safari "http://localhost:8787/#live" 2>/dev/null || open "http://localhost:8787/#live"
+    # если создан администратор — открываем и админ-приложение (видео, вход по логину и паролю)
+    if [ -f admins.json ]; then sleep 2; open -a Safari "http://localhost:8788/" 2>/dev/null || open "http://localhost:8788/"; fi
+  fi ) &
+if [ ! -f admins.json ]; then echo "Админ-приложение (видео) выключено: создайте администратора файлом ADD-ADMIN-MAC.command"; fi
 
 # по умолчанию: окно с рамками вокруг людей (--preview). Для проверки без окна: DDX_EDGE_ARGS=" " ./START-MAC.command
 python3 ddx_edge.py ${DDX_EDGE_ARGS---preview}
