@@ -1,0 +1,7 @@
+# локальные секреты и тяжёлые файлы прототипа edge/
+edge/config.json
+edge/models/
+edge/__pycache__/
+*.pyc
+dist/
+*.zip

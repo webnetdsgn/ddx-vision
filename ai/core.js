@@ -234,23 +234,25 @@
     }
   }
   class HttpCameraProvider extends CameraProvider {
-    constructor(cfg) { super(); this.mode = 'LIVE'; this.http = new HttpClient(cfg); this.frame = null; this._st = { state: 'connecting', message: '', at: 0 }; this.poll = cfg.pollMs || 2000; }
+    constructor(cfg) { super(); this.mode = 'LIVE'; this.http = new HttpClient(cfg); this.frame = null; this._st = { state: 'connecting', message: '', at: 0 }; this.poll = cfg.pollMs || 2000; this.okAt = 0; this.staleMs = cfg.staleMs || Math.max(10000, this.poll * 5); this.dropMs = cfg.dropMs || 30000; }
     async fetchOnce() {
       try {
         const j = await this.http.get('/v1/occupancy');
         const zones = ZDEF.map(d => { const z = (j.zones || []).find(x => x.id === d.id); if (!z) return null; const capacity = Math.max(1, +z.capacity || d.cap); return { id: d.id, count: +z.count || 0, capacity, p: clamp(z.p != null ? +z.p : (+z.count || 0) / capacity, 0, 1), dwellMin: +z.dwellMin || 0 }; }).filter(Boolean);
         if (!zones.length) throw new Error('пустой ответ /v1/occupancy');
         const people = j.people != null ? +j.people : zones.reduce((a, z) => a + z.count, 0);
-        this.frame = { ts: Date.now(), clubId: j.clubId || '', clubName: j.clubName || '', clubCap: +j.clubCap || zones.reduce((a, z) => a + z.capacity, 0), people, zones, flows: j.flows || [], entrance: j.entrance || { in10: 0, out10: 0 }, source: 'live' };
-        this._st = { state: 'ok', message: '', at: Date.now() };
+        this.frame = { ts: Date.now(), clubId: j.clubId || '', clubName: j.clubName || '', clubCap: +j.clubCap || zones.reduce((a, z) => a + z.capacity, 0), people, zones, flows: j.flows || [], entrance: j.entrance || { in10: 0, out10: 0 }, cameras: j.cameras || null, source: 'live' };
+        this._st = { state: 'ok', message: '', at: Date.now() }; this.okAt = Date.now();
       } catch (e) { this._st = { state: 'error', message: String(e && e.message || e), at: Date.now() }; }
     }
     start() { this.fetchOnce(); this.timer = setInterval(() => this.fetchOnce(), this.poll); }
     stop() { clearInterval(this.timer); }
     getFrame() {
       if (!this.frame) return null;
+      const age = Date.now() - this.okAt; // считаем от последнего УДАЧНОГО ответа (ошибки возраст не обнуляют)
+      if (age > this.dropMs) return null; // давно нет связи: старые цифры не показываем как будто они живые
       const now = { dow: 0, min: 0 }; // дополняется оркестратором
-      const f = Object.assign({}, this.frame); f.simMin = now.min; f.stale = Date.now() - this._st.at > this.poll * 5; return f;
+      const f = Object.assign({}, this.frame); f.simMin = now.min; f.stale = age > this.staleMs; return f;
     }
   }
   class HttpEquipmentProvider extends EquipmentProvider {

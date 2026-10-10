@@ -1,5 +1,5 @@
 /* DDX Vision — сервис-воркер: приложение работает без интернета и сразу подхватывает новую версию */
-const VER = 'ddx-vision-v5';
+const VER = 'ddx-vision-v5b';
 const FONTS = 'https://fonts.googleapis.com/css2?family=Onest:wght@400..700&family=Oswald:wght@500..700&display=swap';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png',
   'ai/ai.css', 'ai/core.js', 'ai/coach.js', 'ai/twin.js', 'ai/routing.js', 'ai/ui.js', 'ai/ui2.js', 'ai/ui3.js', 'ai/ui4.js'];
@@ -43,6 +43,9 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+
+  /* живые данные клуба (/v1/…) никогда не кэшируем: иначе после обрыва связи приложение показывало бы старые цифры как живые */
+  if (url.pathname.indexOf('/v1/') !== -1) return;
 
   /* страницы: сначала сеть с проверкой «не изменился ли файл», если нет интернета — из кэша */
   if (req.mode === 'navigate') {

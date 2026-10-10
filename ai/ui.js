@@ -279,6 +279,15 @@
     }
   });
 
+  /* #live — автоподключение к сервису с того же адреса. Нужно для прототипа edge/ddx_edge.py:
+     один компьютер раздаёт и приложение, и /v1/occupancy, поэтому ни CORS, ни смешанного http/https нет. */
+  if (/[#?&]live\b/.test(location.hash + location.search) && /^https?:$/.test(location.protocol)) {
+    setTimeout(async () => {
+      try { AI.liveConfigHint.baseUrl = location.origin; await orch.connectLive({ baseUrl: location.origin, token: '' }); AI.privacy.log('mode.live', 'подключён ' + location.origin); snap = orch.update(0); if (UI.refreshMode) UI.refreshMode(); B.toast('LIVE подключён'); B.go('live'); }
+      catch (err) { B.toast('LIVE не подключился: ' + (err && err.message || err)); }
+    }, 1600);
+  }
+
   /* ============================================================ данные и согласия (приватность, аудит) */
   function openPrivacyAI() {
     const html = () => {
@@ -320,7 +329,16 @@
   B.acts.live = () => B.go('live');
   B.acts.mode = () => openMode();
   B.acts.privacyai = () => openPrivacyAI();
-  B.hooks.tick.push(() => { snap = orch.update(); });
+  // шапка главной: в LIVE пишем то, что сообщил сервис, а не цифры демо-клуба
+  function syncHeader() {
+    const cn = $('[data-clubname]'), cl = $('[data-camsline]'); if (!cn || !cl) return;
+    if (orch.mode === 'LIVE') {
+      const f = orch.providers.camera.frame || {};
+      cn.textContent = f.clubName || 'Боевой сервис';
+      cl.textContent = snap.empty ? 'нет связи · live' : (f.cameras && f.cameras.total ? f.cameras.online + ' из ' + f.cameras.total + ' камер · live' : 'live');
+    } else { cn.textContent = B.state.club.name; cl.textContent = B.state.club.cams + ' камер · live'; }
+  }
+  B.hooks.tick.push(() => { snap = orch.update(); syncHeader(); });
   B.hooks.render.push(full => {
     renderHomeCard();
     if (B.state.screen === 'live') renderLive(full);

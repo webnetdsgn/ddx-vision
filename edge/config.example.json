@@ -1,0 +1,39 @@
+{
+  "clubId": "proto",
+  "clubName": "DDX Vision — прототип",
+  "port": 8787,
+  "token": "",
+  "fps": 1.5,
+  "conf": 0.40,
+  "model": "tiny",
+  "smoothing": 5,
+  "cameras": [
+    {
+      "name": "cam1",
+      "source": {
+        "url": "rtsp://192.168.1.50:554/h264_hd.sdp",
+        "user": "admin",
+        "password": "ВАШ_ПАРОЛЬ_КАМЕРЫ"
+      },
+      "masks": [
+        [[0.78, 0.10], [0.98, 0.10], [0.98, 0.60], [0.78, 0.60]]
+      ],
+      "zones": [
+        { "id": "chest",  "capacity": 3, "polygon": [[0.02, 0.35], [0.45, 0.35], [0.45, 0.98], [0.02, 0.98]] },
+        { "id": "cardio", "capacity": 3, "polygon": [[0.50, 0.35], [0.76, 0.35], [0.76, 0.98], [0.50, 0.98]] }
+      ]
+    },
+    {
+      "name": "cam2",
+      "source": {
+        "url": "rtsp://192.168.1.51:554/h264_hd.sdp",
+        "user": "admin",
+        "password": "ВАШ_ПАРОЛЬ_ВТОРОЙ_КАМЕРЫ"
+      },
+      "masks": [],
+      "zones": [
+        { "id": "free", "capacity": 4, "polygon": [[0.05, 0.30], [0.95, 0.30], [0.95, 0.98], [0.05, 0.98]] }
+      ]
+    }
+  ]
+}
