@@ -5,3 +5,5 @@ edge/__pycache__/
 *.pyc
 dist/
 *.zip
+edge/admins.json
+edge/audit.log

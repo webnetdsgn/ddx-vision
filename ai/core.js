@@ -84,6 +84,7 @@
   // PROCESS VIDEO — STORE DATA: видео не хранится, наружу уходят только метаданные
   const privacy = {
     role: 'member', // member | coach | manager
+    locked: false, // в LIVE смена роли отключена: управляющие работают в отдельном приложении администратора, а не в приложении посетителя
     retention: { analyticsDays: 90, keypointsDays: 30, sessionDays: 365, videoDays: 0 },
     consent: { coach: false, sources: { inbody: true, workouts: true, coach: true, recovery: false } },
     cameraZones: { free: true, legs: true, chest: true, back: true, cardio: true, func: true, stretch: true, entrance: true, group: false, locker: false },
@@ -96,7 +97,8 @@
       if (action === 'retention') return r === 'manager';
       return true;
     },
-    setRole(r) { if (!this.ROLES[r] || r === this.role) return; const prev = this.role; this.role = r; this.log('role.change', prev + ' → ' + r + ' (демо, без входа)'); },
+    lockRole(on) { this.locked = !!on; if (on && this.role !== 'member') { const prev = this.role; this.role = 'member'; this.log('role.change', prev + ' → member (LIVE: роли выдаёт приложение администратора точки)'); } },
+    setRole(r) { if (!this.ROLES[r] || r === this.role) return; if (this.locked) { this.log('role.denied', 'в LIVE роль не меняется'); return; } const prev = this.role; this.role = r; this.log('role.change', prev + ' → ' + r + ' (демо, без входа)'); },
     log(action, detail) {
       const rec = { id: (this.audit[0] ? this.audit[0].id : 0) + 1, ts: Date.now(), role: this.role, action, detail: String(detail || '') };
       this.audit.unshift(rec); if (this.audit.length > 120) this.audit.length = 120;
@@ -475,7 +477,7 @@
       this.setDemo();
     }
     setDemo() {
-      this.stopLive(); this.mode = 'DEMO';
+      this.stopLive(); this.mode = 'DEMO'; privacy.lockRole(false);
       const scen = this.scen;
       this.providers = { camera: new DemoCameraProvider(this.sim, scen), equipment: new DemoEquipmentProvider(this.sim, scen) };
       AI.bus.emit('mode', 'DEMO');
@@ -486,7 +488,7 @@
       await cam.fetchOnce(); await eq.fetchOnce();
       if (cam.status().state !== 'ok') throw new Error('Камеры: ' + cam.status().message);
       cam.start(); eq.start(); this.stopLive();
-      this.providers = { camera: cam, equipment: eq }; this.mode = 'LIVE'; this.liveCfg = { baseUrl: cfg.baseUrl };
+      this.providers = { camera: cam, equipment: eq }; this.mode = 'LIVE'; privacy.lockRole(true); this.liveCfg = { baseUrl: cfg.baseUrl };
       AI.bus.emit('mode', 'LIVE'); return cam.status();
     }
     stopLive() { if (this.providers && this.mode === 'LIVE') { this.providers.camera.stop(); this.providers.equipment.stop(); } }

@@ -4,7 +4,8 @@
 DDX Vision Edge — прототип «мини-компьютера в клубе».
 
 Видео с камеры  →  силуэты людей (лица НЕ распознаются)  →  числа по зонам  →  /v1/occupancy
-Кадры никуда не сохраняются и не отправляются: из программы выходят только числа.
+Кадры нигде не сохраняются. Приложению посетителей отдаются только числа; живой кадр (без записи) видят
+только администраторы точки в отдельном приложении по логину и паролю (ddx_admin.py).
 
 Запуск (подробности — в INSTRUCTION-RU.txt):
     python3 ddx_edge.py --download-model        # один раз: скачать модель
@@ -36,6 +37,8 @@ os.environ.setdefault("OPENCV_FFMPEG_CAPTURE_OPTIONS", "rtsp_transport;tcp")
 
 import numpy as np  # noqa: E402
 import cv2  # noqa: E402
+
+import ddx_admin  # noqa: E402  (админ-приложение: видео только для администраторов точки)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -587,6 +590,31 @@ def make_handler(cfg: dict, app_dir: str | None):
     return Handler
 
 
+def start_admin(cfg: dict, args, hub):
+    """Админ-приложение на отдельном порту. По умолчанию слушает только этот компьютер (127.0.0.1)."""
+    if args.no_admin:
+        return None, None
+    store = ddx_admin.AdminStore(ADMINS_FILE)
+    if not store.users():
+        return None, None
+    tls = tuple(args.admin_tls) if args.admin_tls else None
+    app = ddx_admin.AdminApp(hub, store, ddx_admin.AuditLog(AUDIT_FILE), cfg.get("clubName", ""), draw_overlay,
+                             os.path.join(HERE, "admin"), tls=bool(tls))
+    host = "0.0.0.0" if args.admin_lan else "127.0.0.1"
+    port = int(args.admin_port or cfg.get("adminPort", 8788))
+    try:
+        srv = ddx_admin.make_admin_server(app, host, port, tls)
+    except (OSError, ValueError) as e:
+        log("⚠ админ-приложение не запущено: %s" % e)
+        return None, None
+    threading.Thread(target=srv.serve_forever, name="admin", daemon=True).start()
+    scheme = "https" if tls else "http"
+    if args.admin_lan and not tls:
+        log("⚠ админ-приложение доступно из сети БЕЗ шифрования: пароль и видео идут открыто. Только для проверки дома; в клубе нужен https (--admin-tls).")
+    shown = lan_ip() if args.admin_lan else "localhost"
+    return srv, "%s://%s:%d/" % (scheme, shown, port)
+
+
 def lan_ip() -> str:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -704,6 +732,36 @@ def probe(ip: str, user: str, password: str | None) -> int:
     return 1
 
 
+ADMINS_FILE = os.environ.get("DDX_ADMINS_FILE") or os.path.join(HERE, "admins.json")  # у каждой точки свой набор администраторов
+AUDIT_FILE = os.environ.get("DDX_AUDIT_FILE") or os.path.join(HERE, "audit.log")
+
+
+def admin_cli(args) -> int:
+    store = ddx_admin.AdminStore(ADMINS_FILE)
+    if args.list_admins:
+        names = store.users()
+        print("Администраторы этой точки: " + (", ".join(names) if names else "нет (создайте: python3 ddx_edge.py --add-admin ЛОГИН)"))
+        return 0
+    if args.remove_admin:
+        print("Удалён." if store.remove(args.remove_admin) else "Такого администратора нет.")
+        return 0
+    user = args.add_admin
+    if args.password_env:
+        pwd = os.environ.get(args.password_env, "")
+    else:
+        pwd = getpass.getpass("Пароль для %s (минимум %d символов, при вводе не виден): " % (user, ddx_admin.MIN_PASSWORD))
+        if pwd != getpass.getpass("Повторите пароль: "):
+            print("Пароли не совпали.")
+            return 1
+    try:
+        store.add(user, pwd)
+    except ValueError as e:
+        print("Не создано: %s" % e)
+        return 1
+    print("Готово: администратор «%s» создан. Пароль нигде не хранится в открытом виде." % user)
+    return 0
+
+
 def run_image(path: str, cfg: dict, detector) -> int:
     img = cv2.imread(path)
     if img is None:
@@ -715,6 +773,30 @@ def run_image(path: str, cfg: dict, detector) -> int:
     for k, v in res["raw"].items():
         print("  зона %-10s %d" % (k.split("#")[0], v))
     return 0
+
+
+def draw_overlay(vis, cam, translucent_masks: bool = False) -> None:
+    """Рисует поверх кадра зоны, рамки людей и точки «ног». Используется окном настройки и админ-приложением."""
+    palette = [(255, 160, 0), (0, 200, 255), (80, 220, 100), (200, 80, 255), (60, 60, 255), (255, 200, 120)]
+    h, w = vis.shape[:2]
+    if translucent_masks:
+        for m in cam.masks:
+            pts = np.round(m * np.array([w, h])).astype(np.int32)
+            ov = vis.copy()
+            cv2.fillPoly(ov, [pts], (0, 0, 0))
+            vis[:] = cv2.addWeighted(ov, 0.7, vis, 0.3, 0)
+    counts = cam.smooth_counts()
+    for i, z in enumerate(cam.zones):
+        col = palette[i % len(palette)]
+        pts = np.round(np.array(z["polygon"]) * np.array([w, h])).astype(np.int32)
+        cv2.polylines(vis, [pts], True, col, 2)
+        label = "%s %d/%d" % (z["id"], counts.get(i, 0), int(z.get("capacity", 1)))
+        cv2.putText(vis, label, (int(pts[:, 0].min()) + 6, int(pts[:, 1].min()) + 22), cv2.FONT_HERSHEY_SIMPLEX, 0.65, col, 2)
+    for (x1, y1, x2, y2, sc) in cam.last.get("boxes", []):
+        cv2.rectangle(vis, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+        cv2.putText(vis, "person %.2f" % sc, (int(x1), max(14, int(y1) - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+    for (fx, fy, zk) in cam.last.get("feet", []):
+        cv2.circle(vis, (int(fx * w), int(fy * h)), 5, (0, 0, 255) if zk else (128, 128, 128), -1)
 
 
 # ================================================================ окно предпросмотра (только для настройки)
@@ -732,7 +814,6 @@ def run_preview(cameras):
         names[cam.name] = win
         cv2.namedWindow(win, cv2.WINDOW_NORMAL)
         cv2.setMouseCallback(win, on_mouse, cam)
-    palette = [(255, 160, 0), (0, 200, 255), (80, 220, 100), (200, 80, 255), (60, 60, 255), (255, 200, 120)]
     while True:
         for cam in cameras:
             frame, _ts = cam.latest()
@@ -743,24 +824,7 @@ def run_preview(cameras):
                 cv2.imshow(win, blank)
                 continue
             vis = frame.copy()
-            h, w = vis.shape[:2]
-            for m in cam.masks:
-                pts = np.round(m * np.array([w, h])).astype(np.int32)
-                ov = vis.copy()
-                cv2.fillPoly(ov, [pts], (0, 0, 0))
-                vis = cv2.addWeighted(ov, 0.7, vis, 0.3, 0)
-            counts = cam.smooth_counts()
-            for i, z in enumerate(cam.zones):
-                col = palette[i % len(palette)]
-                pts = np.round(np.array(z["polygon"]) * np.array([w, h])).astype(np.int32)
-                cv2.polylines(vis, [pts], True, col, 2)
-                label = "%s %d/%d" % (z["id"], counts.get(i, 0), int(z.get("capacity", 1)))
-                cv2.putText(vis, label, (int(pts[:, 0].min()) + 6, int(pts[:, 1].min()) + 22), cv2.FONT_HERSHEY_SIMPLEX, 0.65, col, 2)
-            for (x1, y1, x2, y2, sc) in cam.last.get("boxes", []):
-                cv2.rectangle(vis, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
-                cv2.putText(vis, "person %.2f" % sc, (int(x1), max(14, int(y1) - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-            for (fx, fy, zk) in cam.last.get("feet", []):
-                cv2.circle(vis, (int(fx * w), int(fy * h)), 5, (0, 0, 255) if zk else (128, 128, 128), -1)
+            draw_overlay(vis, cam, translucent_masks=True)
             cv2.imshow(win, vis)
         k = cv2.waitKey(40) & 0xFF
         if k in (ord("q"), 27):
@@ -785,6 +849,14 @@ def parse_args(argv=None):
     ap.add_argument("--probe-ip", metavar="IP", help="подобрать адрес потока камеры по её IP и выйти")
     ap.add_argument("--user", default="admin", help="логин камеры для --probe-ip")
     ap.add_argument("--image", metavar="ФАЙЛ", help="проверить на одной картинке и выйти")
+    ap.add_argument("--add-admin", metavar="ЛОГИН", help="создать администратора точки (спросит пароль) и выйти")
+    ap.add_argument("--remove-admin", metavar="ЛОГИН", help="удалить администратора точки и выйти")
+    ap.add_argument("--list-admins", action="store_true", help="показать логины администраторов и выйти")
+    ap.add_argument("--password-env", metavar="ИМЯ", help="для --add-admin: взять пароль из переменной окружения (для скриптов)")
+    ap.add_argument("--no-admin", action="store_true", help="не запускать админ-приложение")
+    ap.add_argument("--admin-port", type=int, help="порт админ-приложения (по умолчанию 8788)")
+    ap.add_argument("--admin-lan", action="store_true", help="пускать в админ-приложение из локальной сети (по умолчанию — только этот компьютер)")
+    ap.add_argument("--admin-tls", nargs=2, metavar=("СЕРТИФИКАТ", "КЛЮЧ"), help="включить https для админ-приложения (файлы .pem)")
     return ap.parse_args(argv)
 
 
@@ -795,6 +867,8 @@ def main(argv=None) -> int:
         return download_model(args.download_model)
     if args.probe_ip:
         return probe(args.probe_ip, args.user, None)
+    if args.add_admin or args.remove_admin or args.list_admins:
+        return admin_cli(args)
     cfg = load_config(args)
     try:
         detector = build_detector(cfg, args)
@@ -823,13 +897,18 @@ def main(argv=None) -> int:
         return 1
     server.daemon_threads = True
     threading.Thread(target=server.serve_forever, name="http", daemon=True).start()
+    admin_server, admin_url = start_admin(cfg, args, hub=HUB)
     print()
-    log("DDX Vision Edge запущен. Детектор: %s. Кадры не сохраняются, наружу идут только числа." % detector.name)
+    log("DDX Vision Edge запущен. Детектор: %s. Кадры не сохраняются, посетителям отдаются только числа." % detector.name)
     if app_dir:
         log("Откройте в Safari на этом компьютере:  http://localhost:%d/#live" % port)
         if not args.local_only:
             log("С другого компьютера или телефона (та же Wi-Fi):  http://%s:%d/#live" % (lan_ip(), port))
     log("Проверка API:  http://localhost:%d/v1/occupancy    (остановить: Ctrl+C)" % port)
+    if admin_url:
+        log("Админ-приложение (видео, только для администраторов):  %s" % admin_url)
+    elif not args.no_admin:
+        log("Админ-приложение выключено: нет администраторов. Создайте: python3 ddx_edge.py --add-admin ЛОГИН")
     print()
     def _stop(*_):  # Ctrl+C и обычное завершение процесса — одинаково корректные
         raise KeyboardInterrupt
@@ -852,6 +931,8 @@ def main(argv=None) -> int:
         for cam in cameras:
             cam.stop.set()
         server.shutdown()
+        if admin_server:
+            admin_server.shutdown()
     print("Остановлено.")
     return 0
 

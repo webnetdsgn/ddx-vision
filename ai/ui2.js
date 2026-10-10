@@ -92,7 +92,9 @@
     return `<div class="card rp-card"><div class="rp-grid"><div><small>PEAK OCCUPANCY</small><b class="num">${f.peakPct}%</b></div><div><small>PEAK TIME</small><b class="num">${hm(f.peakTime)}</b></div><div><small>MOST LOADED ZONE</small><b class="rp-z">${tz}</b></div><div><small>AVERAGE CONGESTION</small><b class="num">${String(f.avgWait).replace('.', ',')}<em> мин</em></b></div><div><small>EQUIPMENT ALERTS</small><b class="num">${f.eqAlerts}</b></div><div><small>AI EVENTS</small><b class="num">${s.kpis.aiEvents}</b></div></div>
       <p class="rp-sum">${esc(s.report.summary)}</p><div class="al-a"><button type="button" class="pri" data-cc-copy>Скопировать текст</button></div><p class="ai-foot" style="margin:8px 0 0">${orch.mode === 'LIVE' ? 'Отчёт пока построен по типовому дню клуба: накопленной истории событий нет.' : 'Отчёт собран по модели дня и событиям системы (демо).'} Резюме пересказывает посчитанные числа и не добавляет новых.</p></div>`;
   }
-  const gateHtml = `<div class="card cc-gate rv"><b>Command Center доступен управляющему</b><p>В демо роль выбирается переключателем. В продукте доступ выдаёт система DDX (роли, журнал доступа).</p><button class="btn btn--o btn--w" type="button" data-cc-login>Войти как управляющий (демо)</button></div>`;
+  const gateHtml = () => P.locked
+    ? `<div class="card cc-gate rv"><b>Command Center — только для администраторов точки</b><p>Он открывается в отдельном приложении «DDX Vision Admin» по логину и паролю своей точки. В приложении посетителя его нет, видео с камер посетителям недоступно.</p></div>`
+    : `<div class="card cc-gate rv"><b>Command Center доступен управляющему</b><p>В демо роль выбирается переключателем. В реальной системе управляющий работает в отдельном приложении «DDX Vision Admin»: вход по логину и паролю своей точки, у каждой точки они свои.</p><button class="btn btn--o btn--w" type="button" data-cc-login>Войти как управляющий (демо)</button></div>`;
 
   function renderLog() {
     const box = $('[data-cc-log]', host); if (!box) return;
@@ -110,7 +112,7 @@
     const s = UI.snapNow(), gate = !P.can('command');
     $('[data-c-gate]', host).hidden = !gate; $('[data-c-body]', host).hidden = gate;
     $$('[data-aimode]', host).forEach(b => { b.className = 'ai-badge ' + (orch.mode === 'LIVE' ? 'is-live' : 'is-demo'); b.innerHTML = orch.mode === 'LIVE' ? '<i></i>LIVE' : 'DEMO'; });
-    if (gate) { B.setH($('[data-c-gate]', host), gateHtml); return; }
+    if (gate) { B.setH($('[data-c-gate]', host), gateHtml()); return; }
     $('[data-c="club"]', host).textContent = s.clubName || B.state.club.name;
     if (s.empty) { B.setH($('[data-cs="sum"]', host), `<p class="cc-line">${esc(UI.noData ? 'Нет данных от камер. Проверьте источник в «Режиме данных».' : '')}</p>`); return; }
     B.setH($('[data-cs="sum"]', host), sumHtml(s)); B.setH($('[data-cs="kpi"]', host), kpiHtml(s));
@@ -145,10 +147,10 @@
   function openCamera(zone, evId) {
     if (!P.can('camera', zone)) {
       P.log('camera.denied', zone + (evId ? ' · ' + evId : ''));
-      B.openSheet(`<h3 class="sh-title">Камеры нет</h3><p class="sh-sub">${zname(zone)}</p><div class="ai-note"><svg class="ico"><use href="#i-shield"/></svg><span>${P.cameraZones[zone] === false ? 'В этой зоне камер нет по умолчанию (раздевалки, студия). Считаем по замкам и расписанию.' : 'Для просмотра камер нужна роль «Тренер» или «Управляющий».'}</span></div>`, 'aicam'); return;
+      B.openSheet(`<h3 class="sh-title">Камеры нет</h3><p class="sh-sub">${zname(zone)}</p><div class="ai-note"><svg class="ico"><use href="#i-shield"/></svg><span>${P.cameraZones[zone] === false ? 'В этой зоне камер нет по умолчанию (раздевалки, студия). Считаем по замкам и расписанию.' : (P.locked ? 'Видео с камер посетителям недоступно. Его видят только администраторы точки в отдельном приложении «DDX Vision Admin» (вход по логину и паролю).' : 'Для просмотра камер нужна роль «Тренер» или «Управляющий». В реальной системе — только в отдельном приложении администратора.')}</span></div>`, 'aicam'); return;
     }
     P.log('camera.open', zone + (evId ? ' · ' + evId : ''));
-    B.openSheet(`<h3 class="sh-title">${zname(zone)}</h3><p class="sh-sub">Камера зоны · обработка на edge-сервере клуба</p><div class="zcam"><canvas data-zcam></canvas><span class="zcam-h"><i></i>REC · EDGE · 25 fps</span><span class="zcam-f" data-zcam-f></span></div><div class="ai-note"><svg class="ico"><use href="#i-shield"/></svg><span>Лица скрыты, видео не записывается. Факт просмотра сохранён в журнале доступа.</span></div>`, 'aicam');
+    B.openSheet(`<h3 class="sh-title">${zname(zone)}</h3><p class="sh-sub">Камера зоны · обработка на edge-сервере клуба</p><div class="zcam"><canvas data-zcam></canvas><span class="zcam-h"><i></i>ДЕМО-КАДР · симуляция</span><span class="zcam-f" data-zcam-f></span></div><div class="ai-note"><svg class="ico"><use href="#i-shield"/></svg><span>Лица скрыты, видео не записывается. Факт просмотра сохранён в журнале доступа.</span></div>`, 'aicam');
     const cv = $('[data-zcam]', B.sheetB), people = [];
     const loop = t => {
       if (!document.body.contains(cv)) return; requestAnimationFrame(loop);
